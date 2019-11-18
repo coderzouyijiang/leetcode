@@ -10,7 +10,7 @@ import org.junit.runners.JUnit4;
 public class 有效的括号 {
 
     public boolean isValid(String s) {
-        return new ValidCharPair(s).isValid();
+        return ValidCharPair.firstUnvalidIndex(s) == -1;
     }
 
     @Test

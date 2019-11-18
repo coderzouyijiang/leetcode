@@ -16,6 +16,10 @@ public class 最长有效括号 {
         return ch == '(' || ch == '[' || ch == '{';
     }
 
+    public static boolean isRight(char ch) {
+        return ch == ')' || ch == ']' || ch == '}';
+    }
+
     public static char right2Left(char i) {
         if (i == ')') return '(';
         else if (i == ']') return '[';
@@ -23,7 +27,7 @@ public class 最长有效括号 {
         else return 0;
     }
 
-    public int longestValidParenthesesLeft(String s) {
+    public int longestValidParentheses(String s) {
 //        LinkedList<Character> stack = new LinkedList<>();
         SimpleCharStack stack = new SimpleCharStack();
         int maxLen = 0;
@@ -39,6 +43,9 @@ public class 最长有效括号 {
                     stack.clear();
                     continue; // 跳过
                 }
+                if (stack.isEmpty()) {
+
+                }
                 curLen += 2;
             } else if (isLeft(ch)) { // ch in ([{
                 stack.push(ch);
@@ -48,52 +55,6 @@ public class 最长有效括号 {
         }
 //        return stack.isEmpty();
         return Math.max(maxLen, curLen - stack.size() * 2);
-    }
-
-    public static boolean isRight(char ch) {
-        return ch == ')' || ch == ']' || ch == '}';
-    }
-
-    public static char left2Right(char i) {
-        if (i == '(') return ')';
-        else if (i == '[') return ']';
-        else if (i == '{') return '}';
-        else return 0;
-    }
-
-
-    public int longestValidParenthesesRight(String s) {
-//        LinkedList<Character> stack = new LinkedList<>();
-        SimpleCharStack stack = new SimpleCharStack();
-        int maxLen = 0;
-        int curLen = 0;
-        for (int i = s.length() - 1; i >= 0; i--) {
-            final char ch = s.charAt(i);
-            final char expectLeft = left2Right(ch);
-            if (expectLeft != 0) { // ch in )]}
-                if (stack.isEmpty() || stack.pop() != expectLeft) {
-//                    return false;
-                    maxLen = Math.max(maxLen, curLen - stack.size() * 2);
-                    curLen = 0;
-                    stack.clear();
-                    continue; // 跳过
-                }
-                curLen += 2;
-            } else if (isRight(ch)) { // ch in ([{
-                stack.push(ch);
-            } else { // 不是有效符号
-                return -1;
-            }
-        }
-//        return stack.isEmpty();
-        return Math.max(maxLen, curLen - stack.size() * 2);
-    }
-
-    public int longestValidParentheses0(String s) {
-        final int maxLen1 = longestValidParenthesesLeft(s);
-        final int maxLen2 = longestValidParenthesesRight(s);
-        final int maxLen = Math.min(maxLen1, maxLen2);
-        return maxLen;
     }
 
     public static class SimpleCharStack {
@@ -136,7 +97,7 @@ public class 最长有效括号 {
 
     @Test
     public void test() {
-//        Assert.assertEquals(2, longestValidParentheses("()(()"));
+        Assert.assertEquals(2, longestValidParentheses("()(()"));
         /*
         Assert.assertEquals(2, longestValidParentheses("()"));
         Assert.assertEquals(4, longestValidParentheses("()[]"));
@@ -145,9 +106,9 @@ public class 最长有效括号 {
         Assert.assertEquals(6, longestValidParentheses(")([]){}"));
         Assert.assertEquals(4, longestValidParentheses(")(]{[]})"));
         */
-//        Assert.assertEquals(0, longestValidParentheses("({[}])"));
-//        Assert.assertEquals(4, longestValidParentheses("()[]({[}])()"));
-//        Assert.assertEquals(4, longestValidParentheses("))))())()()(()"));
+        Assert.assertEquals(0, longestValidParentheses("({[}])"));
+        Assert.assertEquals(4, longestValidParentheses("()[]({[}])()"));
+        Assert.assertEquals(10, longestValidParentheses("))))())()()(())()(()"));
     }
 
 
