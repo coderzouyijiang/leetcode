@@ -49,6 +49,8 @@ public class 旋转链表 {
                 k = k % len;
                 if (k != 0) {
                     k = (len - k) + len;
+                } else {
+                    return head;
                 }
             }
         }
