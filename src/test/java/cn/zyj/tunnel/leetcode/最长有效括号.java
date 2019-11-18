@@ -6,55 +6,23 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Stack;
 
 @RunWith(JUnit4.class)
 public class 最长有效括号 {
 
-    public static boolean isLeft(char ch) {
-        return ch == '(' || ch == '[' || ch == '{';
-    }
-
-    public static boolean isRight(char ch) {
-        return ch == ')' || ch == ']' || ch == '}';
-    }
-
-    public static char right2Left(char i) {
-        if (i == ')') return '(';
-        else if (i == ']') return '[';
-        else if (i == '}') return '{';
-        else return 0;
-    }
-
     public int longestValidParentheses(String s) {
-//        LinkedList<Character> stack = new LinkedList<>();
-        SimpleCharStack stack = new SimpleCharStack();
-        int maxLen = 0;
-        int curLen = 0;
-        for (int i = 0; i < s.length(); i++) {
-            final char ch = s.charAt(i);
-            final char expectLeft = right2Left(ch);
-            if (expectLeft != 0) { // ch in )]}
-                if (stack.isEmpty() || stack.pop() != expectLeft) {
-//                    return false;
-                    maxLen = Math.max(maxLen, curLen - stack.size() * 2);
-                    curLen = 0;
-                    stack.clear();
-                    continue; // 跳过
-                }
-                if (stack.isEmpty()) {
-
-                }
-                curLen += 2;
-            } else if (isLeft(ch)) { // ch in ([{
-                stack.push(ch);
-            } else { // 不是有效符号
-                return -1;
+        while (true) {
+            final int index = ValidCharPair.firstUnvalidIndexLeft(s);
+            if (index == -1) {
+                return s.length();
             }
+            final String s1 = s.substring(0, index).rev
+            if (index >= s.length()) {
+                break;
+            }
+            final String s2 = s.substring(index + 1);
         }
-//        return stack.isEmpty();
-        return Math.max(maxLen, curLen - stack.size() * 2);
+        return -1;
     }
 
     public static class SimpleCharStack {
