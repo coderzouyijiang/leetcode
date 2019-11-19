@@ -248,6 +248,16 @@ public class 推箱子 {
             {'#', '.', '.', '.', 'S', '#'},
             {'#', '#', '#', '#', '#', '#'}};
 
+    char[][] grid5 = {
+            {'.', '.', '#', '.', '.', '.', '.', '#'}
+            , {'.', 'B', '.', '.', '.', '.', '.', '#'}
+            , {'.', '.', 'S', '.', '.', '.', '.', '.'}
+            , {'.', '#', '.', '.', '.', '.', '.', '.'}
+            , {'.', '.', '.', '.', '.', '.', '.', '.'}
+            , {'.', '.', '.', 'T', '.', '.', '.', '.'}
+            , {'.', '.', '.', '.', '.', '.', '.', '#'}
+            , {'.', '#', '.', '.', '.', '.', '.', '.'}};
+
     @Test
     public void test() {
         Assert.assertEquals(3, minPushBox(grid1));
@@ -257,7 +267,7 @@ public class 推箱子 {
 
     @Test
     public void test_searchPath() {
-        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4);
+        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4, grid5);
         for (char[][] grid : grids) {
             System.out.println("------------------------------------------\n");
             final Pos box = searchPos(grid, BOX);
@@ -269,7 +279,7 @@ public class 推箱子 {
             searchPath(grid, Arrays.asList(new Move(player, box)), target, paths);
             System.out.println("\nresult:");
             for (List<Pos> path : paths) {
-                System.out.println("" + path);
+                System.out.println("" + path + "," + (path.size() - 1));
             }
         }
     }
