@@ -1,6 +1,5 @@
 package cn.zyj.tunnel.leetcode;
 
-import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,6 +13,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,7 +47,7 @@ public class 推箱子 {
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(i, j);
+            return Objects.hash(i, j);
         }
     }
 
@@ -66,13 +66,13 @@ public class 推箱子 {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Move move = (Move) o;
-            return Objects.equal(from, move.from) &&
-                    Objects.equal(to, move.to);
+            return Objects.equals(from, move.from) &&
+                    Objects.equals(to, move.to);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(from, to);
+            return Objects.hash(from, to);
         }
 
         @Override
