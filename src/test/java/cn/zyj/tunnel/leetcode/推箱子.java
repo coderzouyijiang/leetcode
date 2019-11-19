@@ -148,7 +148,7 @@ public class 推箱子 {
         System.out.println(gridToStr(grid, p, player));
         final List<Pos> nextPosList = searchNextStep(grid, p);
         // 按与终点直线距离排序
-        Collections.sort(nextPosList, Comparator.comparingInt(it -> computeDistance(it, target)));
+        nextPosList.sort(Comparator.comparingInt(it -> computeDistance(it, target)));
         for (Pos nextPos : nextPosList) {
             final Move nextMove = new Move(p, nextPos);
             if (path.contains(nextMove)) {
@@ -168,6 +168,7 @@ public class 推箱子 {
 
     private boolean isConnect(char[][] grid, Pos p, Pos target, Pos box, Set<Pos> path) {
 //        log.info("" + path);
+        List<Pos> nextPosList = new ArrayList<>();
         for (Pos step : stepList) {
             final Pos p2 = getValidPos(grid, p.i + step.i, p.j + step.j);
 //            log.info("" + path + ":" + p2);
@@ -177,6 +178,11 @@ public class 推箱子 {
             if (p2.equals(target)) {
                 return true;
             }
+            nextPosList.add(p2);
+        }
+        // 按与终点直线距离排序
+        nextPosList.sort(Comparator.comparingInt(it -> computeDistance(it, target)));
+        for (Pos p2 : nextPosList) {
             final HashSet<Pos> path2 = new HashSet<>(path);
             path2.add(p2);
             if (isConnect(grid, p2, target, box, path2)) {
