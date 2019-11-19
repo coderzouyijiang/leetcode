@@ -8,6 +8,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -146,6 +147,8 @@ public class 推箱子 {
         System.out.println("\n" + path);
         System.out.println(gridToStr(grid, p, player));
         final List<Pos> nextPosList = searchNextStep(grid, p);
+        // 按与终点直线距离排序
+        Collections.sort(nextPosList, Comparator.comparingInt(it -> computeDistance(it, target)));
         for (Pos nextPos : nextPosList) {
             final Move nextMove = new Move(p, nextPos);
             if (path.contains(nextMove)) {
@@ -157,6 +160,10 @@ public class 推箱子 {
             }
             searchPath(grid, nextMove, new LinkedHashSet(path), target, paths);
         }
+    }
+
+    private int computeDistance(Pos p1, Pos p2) {
+        return (p2.i - p1.i) * (p2.i - p1.i) + (p2.j - p1.j) * (p2.j - p1.j);
     }
 
     private boolean isConnect(char[][] grid, Pos p, Pos target, Pos box, Set<Pos> path) {
