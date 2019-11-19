@@ -87,9 +87,6 @@ public class 推箱子 {
     private static final char BLANK = '.';
     private static final char WALL = '#';
 
-    private static final Set<Character> BOX_EXCLUDE = new HashSet<>(Arrays.asList(WALL));
-    private static final Set<Character> PLAYER_EXCLUDE = new HashSet<>(Arrays.asList(WALL, BOX));
-
     private static final List<Pos> stepList = Arrays.asList(
             new Pos(1, 0), new Pos(-1, 0), new Pos(0, 1), new Pos(0, -1));
 
@@ -130,17 +127,6 @@ public class 推箱子 {
             }
         }
         return list;
-    }
-
-    public int minPushBox(char[][] grid) {
-        final Pos box = searchPos(grid, BOX);
-        final Pos target = searchPos(grid, TARGET);
-        final Pos player = searchPos(grid, PLAYER);
-
-        List<List<Pos>> paths = new LinkedList<>();
-        searchPath(grid, Arrays.asList(new Move(player, box)), target, paths);
-        final List<Pos> minPath = paths.stream().min(Comparator.comparingInt(List::size)).orElse(null);
-        return minPath != null ? minPath.size() - 1 : -1;
     }
 
     /**
@@ -195,6 +181,18 @@ public class 推箱子 {
         return false;
     }
 
+    public int minPushBox(char[][] grid) {
+        final Pos box = searchPos(grid, BOX);
+        final Pos target = searchPos(grid, TARGET);
+        final Pos player = searchPos(grid, PLAYER);
+
+        List<List<Pos>> paths = new LinkedList<>();
+        searchPath(grid, Arrays.asList(new Move(player, box)), target, paths);
+        final List<Pos> minPath = paths.stream().min(Comparator.comparingInt(List::size)).orElse(null);
+        return minPath != null ? minPath.size() - 1 : -1;
+    }
+
+    // 打印地图
     private String gridToStr(char[][] grid, Pos box, Pos target) {
         String str = "";
         for (int i = 0; i < grid.length; i++) {
