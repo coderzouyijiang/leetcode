@@ -83,12 +83,12 @@ public class 推箱子 {
     private static final char BLANK = '.';
     private static final char WALL = '#';
 
-    public Pos searchAndRemove(char[][] grid, char x) {
+    public Pos searchPos(char[][] grid, char x) {
         for (int i = 0; i < grid.length; i++) {
             final char[] line = grid[i];
             for (int j = 0; j < line.length; j++) {
                 if (line[j] == x) {
-                    grid[i][j] = BLANK;
+//                    grid[i][j] = BLANK;
                     return new Pos(i, j);
                 }
             }
@@ -99,8 +99,8 @@ public class 推箱子 {
     public Pos getValidPos(char[][] grid, int i, int j) {
         if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length) return null;
         final char val = grid[i][j];
-        if (val == BLANK) return new Pos(i, j);
-        return null;
+        if (val == WALL) return null;
+        return new Pos(i, j);
     }
 
     // 搜索周围空地
@@ -146,11 +146,11 @@ public class 推箱子 {
     */
 
     public int minPushBox(char[][] grid) {
-        final Pos player = searchAndRemove(grid, PLAYER);
+        final Pos player = searchPos(grid, PLAYER);
         grid[player.i][player.j] = BLANK;
 
-        final Pos box = searchAndRemove(grid, BOX);
-        final Pos target = searchAndRemove(grid, TARGET);
+        final Pos box = searchPos(grid, BOX);
+        final Pos target = searchPos(grid, TARGET);
 
 
         return -1;
@@ -159,18 +159,18 @@ public class 推箱子 {
     public void searchPath(char[][] grid, List<Move> path, Pos target, List<List<Pos>> paths) {
         final Move move = path.get(path.size() - 1);
         final Pos p = move.to;
+        if (p.equals(target)) {
+            paths.add(path.stream().map(it -> it.to).collect(Collectors.toList()));
+            return;
+        }
         final Pos last = move.from;
-        System.out.println("\n" + path);
-        System.out.println(gridToStr(grid, p, target));
+//        System.out.println("\n" + path);
+//        System.out.println(gridToStr(grid, p, target));
         final List<Pos> nextPosList = searchNextPos(grid, p, last);
         for (Pos nextPos : nextPosList) {
             final Move nextMove = new Move(p, nextPos);
             if (path.contains(nextMove)) {
                 continue;
-            }
-            if (nextPos.equals(target)) {
-                paths.add(path.stream().map(it -> it.to).collect(Collectors.toList()));
-                break;
             }
             final List<Move> nextPath = new ArrayList<>(path);
             nextPath.add(nextMove);
@@ -225,6 +225,14 @@ public class 推箱子 {
             {'#', 'S', '#', '.', 'B', 'T', '#'},
             {'#', '#', '#', '#', '#', '#', '#'}};
 
+    char[][] grid4 = {
+            {'#', '#', '#', '#', '#', '#'},
+            {'#', 'T', '.', '.', '.', '#'},
+            {'#', '.', '#', 'B', '.', '#'},
+            {'#', '.', '.', '.', '.', '#'},
+            {'#', '.', '.', '.', 'S', '#'},
+            {'#', '#', '#', '#', '#', '#'}};
+
     /**
      * 1.求出T-B之间所有可能路径集合PS,PS中每个元素是P,P中包含路径点{p0,p1,..pn}
      * 2.对于一个P，每一步移动 Pn -> Pn+1 ,设与移动方向相反的位置是Sn,必须是空的（留给player)
@@ -239,18 +247,20 @@ public class 推箱子 {
 
     @Test
     public void test_searchPath() {
-//        char[][] grid = grid1;
-        char[][] grid = grid2;
+        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4);
+        for (char[][] grid : grids) {
+            System.out.println("------------------------------------------\n");
+            final Pos box = searchPos(grid, BOX);
+            final Pos target = searchPos(grid, TARGET);
+            final Pos player = searchPos(grid, PLAYER);
 
-        final Pos box = searchAndRemove(grid, BOX);
-        final Pos target = searchAndRemove(grid, TARGET);
-        final Pos player = searchAndRemove(grid, PLAYER);
-
-        List<List<Pos>> paths = new LinkedList<>();
-        searchPath(grid, Arrays.asList(new Move(null, box)), target, paths);
-        System.out.println("\nresult:");
-        for (List<Pos> path : paths) {
-            System.out.println("" + path);
+            System.out.println(gridToStr(grid, box, target));
+            List<List<Pos>> paths = new LinkedList<>();
+            searchPath(grid, Arrays.asList(new Move(null, box)), target, paths);
+            System.out.println("\nresult:");
+            for (List<Pos> path : paths) {
+                System.out.println("" + path);
+            }
         }
     }
 }
