@@ -134,8 +134,8 @@ public class 推箱子 {
      * 2.对于一个P，每一步移动 Pn -> Pn+1 ,设与移动方向相反的位置是Sn,必须是空的（留给player)
      * 3.每一次移动,player由Sn-1移动到Pn,Pn和Sn+1必须是连通的(墙和箱子不可穿过)
      */
-    public void searchPath(char[][] grid, List<Move> path, Pos target, List<List<Pos>> paths) {
-        final Move move = path.get(path.size() - 1);
+    public void searchPath(char[][] grid, Move move, LinkedHashSet<Move> path, Pos target, List<List<Pos>> paths) {
+        path.add(move);
         final Pos p = move.to;
         if (p.equals(target)) {
             paths.add(path.stream().map(it -> it.to).collect(Collectors.toList()));
@@ -155,9 +155,7 @@ public class 推箱子 {
             if (!isConnect(grid, player, nextPlayer, p, new HashSet<>())) {
                 continue;
             }
-            final List<Move> nextPath = new ArrayList<>(path);
-            nextPath.add(nextMove);
-            searchPath(grid, nextPath, target, paths);
+            searchPath(grid, nextMove, new LinkedHashSet(path), target, paths);
         }
     }
 
@@ -187,7 +185,9 @@ public class 推箱子 {
         final Pos player = searchPos(grid, PLAYER);
 
         List<List<Pos>> paths = new LinkedList<>();
-        searchPath(grid, Arrays.asList(new Move(player, box)), target, paths);
+        final Move firstMove = new Move(player, box);
+        LinkedHashSet<Move> firstPath = new LinkedHashSet<>();
+        searchPath(grid, firstMove, firstPath, target, paths);
         final List<Pos> minPath = paths.stream().min(Comparator.comparingInt(List::size)).orElse(null);
         return minPath != null ? minPath.size() - 1 : -1;
     }
@@ -277,7 +277,9 @@ public class 推箱子 {
 
             System.out.println(gridToStr(grid, box, target));
             List<List<Pos>> paths = new LinkedList<>();
-            searchPath(grid, Arrays.asList(new Move(player, box)), target, paths);
+            final Move firstMove = new Move(player, box);
+            LinkedHashSet<Move> firstPath = new LinkedHashSet<>();
+            searchPath(grid, firstMove, firstPath, target, paths);
             System.out.println("\nresult:");
             for (List<Pos> path : paths) {
                 System.out.println("" + path + "," + (path.size() - 1));
