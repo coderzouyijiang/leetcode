@@ -9,7 +9,9 @@ import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -131,14 +133,14 @@ public class 推箱子 {
     }
 
     public int minPushBox(char[][] grid) {
-        final Pos player = searchPos(grid, PLAYER);
-        grid[player.i][player.j] = BLANK;
-
         final Pos box = searchPos(grid, BOX);
         final Pos target = searchPos(grid, TARGET);
+        final Pos player = searchPos(grid, PLAYER);
 
-
-        return -1;
+        List<List<Pos>> paths = new LinkedList<>();
+        searchPath(grid, Arrays.asList(new Move(player, box)), target, paths);
+        final List<Pos> minPath = paths.stream().min(Comparator.comparingInt(List::size)).orElse(null);
+        return minPath != null ? minPath.size() - 1 : -1;
     }
 
     /**
@@ -164,7 +166,7 @@ public class 推箱子 {
                 continue;
             }
             final Pos nextPlayer = new Pos(p.i - (nextPos.i - p.i), p.j - (nextPos.j - p.j));
-            if (!isConnect(grid, player, nextPlayer)) {
+            if (!isConnect(grid, player, nextPlayer, p, new HashSet<>())) {
                 continue;
             }
             final List<Move> nextPath = new ArrayList<>(path);
@@ -173,17 +175,24 @@ public class 推箱子 {
         }
     }
 
-    private boolean isConnect(char[][] grid, Pos p, Pos target) {
-        /*
+    private boolean isConnect(char[][] grid, Pos p, Pos target, Pos box, Set<Pos> path) {
+//        log.info("" + path);
         for (Pos step : stepList) {
             final Pos p2 = getValidPos(grid, p.i + step.i, p.j + step.j);
-            if (p2 != null && isConnect(grid, p2, target)) {
+//            log.info("" + path + ":" + p2);
+            if (p2 == null || p2.equals(box) || path.contains(p2)) {
+                continue;
+            }
+            final HashSet<Pos> path2 = new HashSet<>(path);
+            path2.add(p2);
+            if (p2.equals(target)) {
+                return true;
+            }
+            if (isConnect(grid, p2, target, box, path2)) {
                 return true;
             }
         }
         return false;
-        */
-        return true;
     }
 
     private String gridToStr(char[][] grid, Pos box, Pos target) {
@@ -243,7 +252,7 @@ public class 推箱子 {
 
     @Test
     public void test() {
-        Assert.assertEquals(-1, minPushBox(grid1));
+        Assert.assertEquals(3, minPushBox(grid1));
         Assert.assertEquals(5, minPushBox(grid2));
         Assert.assertEquals(-1, minPushBox(grid3));
     }
@@ -259,11 +268,22 @@ public class 推箱子 {
 
             System.out.println(gridToStr(grid, box, target));
             List<List<Pos>> paths = new LinkedList<>();
-            searchPath(grid, Arrays.asList(new Move(null, box)), target, paths);
+            searchPath(grid, Arrays.asList(new Move(player, box)), target, paths);
             System.out.println("\nresult:");
             for (List<Pos> path : paths) {
                 System.out.println("" + path);
             }
         }
     }
+
+    @Test
+    public void test_isConnect() {
+        final Pos box = searchPos(grid1, BOX);
+        final Pos target = searchPos(grid1, TARGET);
+        final Pos player = searchPos(grid1, PLAYER);
+        System.out.println(gridToStr(grid1, box, target));
+        final boolean isConnect = isConnect(grid1, player, new Pos(2, 4), box, new LinkedHashSet<>());
+        log.info("");
+    }
+
 }
