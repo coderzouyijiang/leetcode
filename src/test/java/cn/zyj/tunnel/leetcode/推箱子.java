@@ -96,6 +96,7 @@ public class 推箱子 {
         return null;
     }
 
+    // 搜索周围空地
     public Pos getValidPos(char[][] grid, int i, int j) {
         if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length) return null;
         final char val = grid[i][j];
@@ -103,7 +104,7 @@ public class 推箱子 {
         return new Pos(i, j);
     }
 
-    // 搜索周围空地
+    // 搜索下一步可行的位置
     public List<Pos> searchNextPos(char[][] grid, Pos p, Pos from) {
         List<Pos> list = new ArrayList<>(4);
         final Pos p1 = getValidPos(grid, p.i, p.j + 1);
