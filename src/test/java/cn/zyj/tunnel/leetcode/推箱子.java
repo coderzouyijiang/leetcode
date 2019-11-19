@@ -143,8 +143,8 @@ public class 推箱子 {
         }
         // player在last
         final Pos player = move.from;
-//        System.out.println("\n" + path);
-//        System.out.println(gridToStr(grid, p, target));
+        System.out.println("\n" + path);
+        System.out.println(gridToStr(grid, p, player));
         final List<Pos> nextPosList = searchNextStep(grid, p);
         for (Pos nextPos : nextPosList) {
             final Move nextMove = new Move(p, nextPos);
@@ -193,7 +193,7 @@ public class 推箱子 {
     }
 
     // 打印地图
-    private String gridToStr(char[][] grid, Pos box, Pos target) {
+    private String gridToStr(char[][] grid, Pos box, Pos player) {
         String str = "";
         for (int i = 0; i < grid.length; i++) {
             if (i > 0) {
@@ -205,11 +205,11 @@ public class 推箱子 {
                     str += " ";
                 }
                 final char val = line[j];
-                if (target != null && i == target.i && j == target.j) {
-                    str += TARGET;
+                if (player != null && i == player.i && j == player.j) {
+                    str += PLAYER;
                 } else if (box != null && i == box.i && j == box.j) {
                     str += BOX;
-                } else if (val == BOX) {
+                } else if (val == BOX || val == PLAYER) {
                     str += BLANK;
                 } else {
                     str += val;
@@ -268,14 +268,16 @@ public class 推箱子 {
     @Test
     public void test_searchPath() {
 //        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4, grid5);
-        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4);
+//        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4);
+        final List<char[][]> grids = new LinkedList<>();
+        grids.add(grid5);
         for (char[][] grid : grids) {
             System.out.println("------------------------------------------\n");
             final Pos box = searchPos(grid, BOX);
             final Pos target = searchPos(grid, TARGET);
             final Pos player = searchPos(grid, PLAYER);
 
-            System.out.println(gridToStr(grid, box, target));
+            System.out.println(gridToStr(grid, box, player));
             List<List<Pos>> paths = new LinkedList<>();
             final Move firstMove = new Move(player, box);
             LinkedHashSet<Move> firstPath = new LinkedHashSet<>();
@@ -292,7 +294,7 @@ public class 推箱子 {
         final Pos box = searchPos(grid1, BOX);
         final Pos target = searchPos(grid1, TARGET);
         final Pos player = searchPos(grid1, PLAYER);
-        System.out.println(gridToStr(grid1, box, target));
+        System.out.println(gridToStr(grid1, box, player));
         final boolean isConnect = isConnect(grid1, player, new Pos(2, 4), box, new LinkedHashSet<>());
         log.info("");
     }
