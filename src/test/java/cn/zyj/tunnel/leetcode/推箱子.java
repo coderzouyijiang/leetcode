@@ -6,10 +6,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import scala.Char;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -85,6 +85,12 @@ public class 推箱子 {
     private static final char BLANK = '.';
     private static final char WALL = '#';
 
+    private static final Set<Character> BOX_EXCLUDE = new HashSet<>(Arrays.asList(WALL));
+    private static final Set<Character> PLAYER_EXCLUDE = new HashSet<>(Arrays.asList(WALL, BOX));
+
+    private static final List<Pos> stepList = Arrays.asList(
+            new Pos(1, 0), new Pos(-1, 0), new Pos(0, 1), new Pos(0, -1));
+
     public Pos searchPos(char[][] grid, char x) {
         for (int i = 0; i < grid.length; i++) {
             final char[] line = grid[i];
@@ -109,20 +115,16 @@ public class 推箱子 {
     // 搜索下一步可行的位置
     public List<Pos> searchNextStep(char[][] grid, Pos p) {
         List<Pos> list = new LinkedList<>();
-        final Pos p1 = getValidPos(grid, p.i, p.j + 1);
-        if (p1 != null) {
-            final Pos p2 = getValidPos(grid, p.i, p.j - 1);
-            if (p2 != null) {
-                list.add(p1);
-                list.add(p2);
-            }
-        }
-        final Pos p3 = getValidPos(grid, p.i + 1, p.j);
-        if (p3 != null) {
-            final Pos p4 = getValidPos(grid, p.i - 1, p.j);
-            if (p4 != null) {
-                list.add(p3);
-                list.add(p4);
+        for (int i = 0; i < stepList.size(); i += 2) {
+            final Pos step1 = stepList.get(i);
+            final Pos step2 = stepList.get(i + 1);
+            final Pos p1 = getValidPos(grid, p.i + step1.i, p.j + step1.j);
+            if (p1 != null) {
+                final Pos p2 = getValidPos(grid, p.i + step2.i, p.j + step2.j);
+                if (p2 != null) {
+                    list.add(p1);
+                    list.add(p2);
+                }
             }
         }
         return list;
@@ -152,7 +154,7 @@ public class 推箱子 {
             return;
         }
         // player在last
-        final Pos push = move.from;
+        final Pos player = move.from;
 //        System.out.println("\n" + path);
 //        System.out.println(gridToStr(grid, p, target));
         final List<Pos> nextPosList = searchNextStep(grid, p);
@@ -161,8 +163,8 @@ public class 推箱子 {
             if (path.contains(nextMove)) {
                 continue;
             }
-            final Pos nextPush = new Pos(p.i - (nextPos.i - p.i), p.j - (nextPos.j - p.j));
-            if (!isConnect(push, nextPush)) {
+            final Pos nextPlayer = new Pos(p.i - (nextPos.i - p.i), p.j - (nextPos.j - p.j));
+            if (!isConnect(grid, player, nextPlayer)) {
                 continue;
             }
             final List<Move> nextPath = new ArrayList<>(path);
@@ -171,9 +173,17 @@ public class 推箱子 {
         }
     }
 
-    private boolean isConnect(Pos p1, Pos p2) {
-
+    private boolean isConnect(char[][] grid, Pos p, Pos target) {
+        /*
+        for (Pos step : stepList) {
+            final Pos p2 = getValidPos(grid, p.i + step.i, p.j + step.j);
+            if (p2 != null && isConnect(grid, p2, target)) {
+                return true;
+            }
+        }
         return false;
+        */
+        return true;
     }
 
     private String gridToStr(char[][] grid, Pos box, Pos target) {
