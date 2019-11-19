@@ -169,11 +169,11 @@ public class 推箱子 {
             if (p2 == null || p2.equals(box) || path.contains(p2)) {
                 continue;
             }
-            final HashSet<Pos> path2 = new HashSet<>(path);
-            path2.add(p2);
             if (p2.equals(target)) {
                 return true;
             }
+            final HashSet<Pos> path2 = new HashSet<>(path);
+            path2.add(p2);
             if (isConnect(grid, p2, target, box, path2)) {
                 return true;
             }
@@ -267,7 +267,8 @@ public class 推箱子 {
 
     @Test
     public void test_searchPath() {
-        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4, grid5);
+//        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4, grid5);
+        final List<char[][]> grids = Arrays.asList(grid1, grid2, grid3, grid4);
         for (char[][] grid : grids) {
             System.out.println("------------------------------------------\n");
             final Pos box = searchPos(grid, BOX);
