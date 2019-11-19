@@ -6,11 +6,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import scala.Char;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -105,46 +107,26 @@ public class 推箱子 {
     }
 
     // 搜索下一步可行的位置
-    public List<Pos> searchNextPos(char[][] grid, Pos p, Pos from) {
-        List<Pos> list = new ArrayList<>(4);
+    public List<Pos> searchNextStep(char[][] grid, Pos p) {
+        List<Pos> list = new LinkedList<>();
         final Pos p1 = getValidPos(grid, p.i, p.j + 1);
         if (p1 != null) {
             final Pos p2 = getValidPos(grid, p.i, p.j - 1);
             if (p2 != null) {
-                findNextPos(list, from, p1, p2);
+                list.add(p1);
+                list.add(p2);
             }
         }
         final Pos p3 = getValidPos(grid, p.i + 1, p.j);
         if (p3 != null) {
             final Pos p4 = getValidPos(grid, p.i - 1, p.j);
             if (p4 != null) {
-                findNextPos(list, from, p3, p4);
+                list.add(p3);
+                list.add(p4);
             }
         }
         return list;
     }
-
-    private void findNextPos(List<Pos> nextPosList, Pos last, Pos p1, Pos p2) {
-        if (p1.equals(last)) {
-            nextPosList.add(p2);
-        } else if (p2.equals(last)) {
-            nextPosList.add(p1);
-        } else {
-            nextPosList.add(p1);
-            nextPosList.add(p2);
-        }
-    }
-
-    /*
-    // 搜索能推箱子的位置
-    public List<Pos> searchPushPos(char[][] grid, Pos box, Pos player) {
-        final List<Pos> posList = searchGroundPos(grid, box);
-        for (int i = 0; i < posList.size(); i += 2) {
-            final Pos p1 = posList.get(i);
-            final Pos p2 = posList.get(i + 1);
-        }
-    }
-    */
 
     public int minPushBox(char[][] grid) {
         final Pos player = searchPos(grid, PLAYER);
@@ -157,6 +139,11 @@ public class 推箱子 {
         return -1;
     }
 
+    /**
+     * 1.求出T-B之间所有可能路径集合PS,PS中每个元素是P,P中包含路径点{p0,p1,..pn}
+     * 2.对于一个P，每一步移动 Pn -> Pn+1 ,设与移动方向相反的位置是Sn,必须是空的（留给player)
+     * 3.每一次移动,player由Sn-1移动到Pn,Pn和Sn+1必须是连通的(墙和箱子不可穿过)
+     */
     public void searchPath(char[][] grid, List<Move> path, Pos target, List<List<Pos>> paths) {
         final Move move = path.get(path.size() - 1);
         final Pos p = move.to;
@@ -164,19 +151,29 @@ public class 推箱子 {
             paths.add(path.stream().map(it -> it.to).collect(Collectors.toList()));
             return;
         }
-        final Pos last = move.from;
+        // player在last
+        final Pos push = move.from;
 //        System.out.println("\n" + path);
 //        System.out.println(gridToStr(grid, p, target));
-        final List<Pos> nextPosList = searchNextPos(grid, p, last);
+        final List<Pos> nextPosList = searchNextStep(grid, p);
         for (Pos nextPos : nextPosList) {
             final Move nextMove = new Move(p, nextPos);
             if (path.contains(nextMove)) {
+                continue;
+            }
+            final Pos nextPush = new Pos(p.i - (nextPos.i - p.i), p.j - (nextPos.j - p.j));
+            if (!isConnect(push, nextPush)) {
                 continue;
             }
             final List<Move> nextPath = new ArrayList<>(path);
             nextPath.add(nextMove);
             searchPath(grid, nextPath, target, paths);
         }
+    }
+
+    private boolean isConnect(Pos p1, Pos p2) {
+
+        return false;
     }
 
     private String gridToStr(char[][] grid, Pos box, Pos target) {
@@ -234,11 +231,6 @@ public class 推箱子 {
             {'#', '.', '.', '.', 'S', '#'},
             {'#', '#', '#', '#', '#', '#'}};
 
-    /**
-     * 1.求出T-B之间所有可能路径集合PS,PS中每个元素是P,P中包含路径点{p0,p1,..pn}
-     * 2.对于一个P，每一步移动 Pn -> Pn+1 ,设与移动方向相反的位置是Sn,必须是空的（留给player)
-     * 3.每一次移动,player由Sn-1移动到Pn,Pn和Sn+1必须是连通的(墙和箱子不可穿过)
-     */
     @Test
     public void test() {
         Assert.assertEquals(-1, minPushBox(grid1));
