@@ -2,10 +2,13 @@ package cn.zyj.tunnel.pathfind;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class PathFinder {
 
@@ -70,7 +73,7 @@ public class PathFinder {
     // 存放路径点和上一级路径点的关系
     private Map<Vec, Vec> parentMap;
     // 路径代价 v -> (p,h,g)
-    private Map<Vec, int[]> costMap;
+    private Map<Vec, PathCost> costMap;
 
     // 设置起点和目标点
     public void setStartAndTarget(Vec start, Vec target) {
@@ -81,23 +84,79 @@ public class PathFinder {
         this.parentMap = new LinkedHashMap<>();
 
         openSet.add(start);
+        costMap.put(start, new PathCost(0, estimateToTarget(start, target), start));
     }
 
-    public boolean next() {
-        if (start.equals(target)) {
-            return true;
+    public int next() {
+        if (openSet.equals(target)) {
+            return 0; // 找到了终点
         }
-        for (Vec v : openSet) {
-            for (Vec unitVec : unitVecList) {
-                final Vec v2 = v.copy().add(unitVec);
-                final Integer val = map.get(v2);
-                if (val == null || val < 0) {
-                    continue; // 不可通过的点
+        if (openSet.isEmpty()) {
+            return -1; // 终点不存在
+        }
+        // 找到代价最小的路径
+        final Vec v = openSet.stream().min(Comparator.comparingInt(it -> costMap.get(it).totalCost)).orElse(null);
+        openSet.remove(v);
+        closeSet.add(v);
+        for (Vec unitVec : unitVecList) {
+            final Vec v2 = v.copy().add(unitVec);
+            final Integer val = map.get(v2);
+            if (val == null || val < 0) {
+                continue; // 不可通过的点
+            }
+            if (closeSet.contains(v2)) {
+                continue; // 已经确定的路径
+            }
+            final PathCost cost = estimateCost(v, v2);
+            if (!openSet.contains(v2)) {
+                openSet.add(v2);
+                costMap.put(v2, cost);
+                parentMap.put(v2, v);
+            } else {
+                // 已经探测过的路径，重新计算代价
+                PathCost oldCost = costMap.get(v2);
+                if (cost.totalCost < oldCost.totalCost) {
+                    costMap.put(v2, cost);
+                    parentMap.put(v2, v);
                 }
-
             }
         }
-        return false;
+        return 1;
+    }
+
+    public List<Vec> findPath() {
+        int result;
+        while ((result = next()) != 1) ;
+        if (result != 0) {
+            return null;
+        }
+        return findPath(parentMap, target);
+    }
+
+    public List<Vec> findPath(Map<Vec, Vec> parentMap, Vec v) {
+        List<Vec> path = new ArrayList<>();
+        Vec pre;
+        while ((pre = parentMap.get(v)) != null) {
+            v = pre;
+            path.add(v);
+        }
+        return path;
+    }
+
+    private PathCost estimateCost(Vec v, Vec v2) {
+        final int toStart = computeToStart(v, v2);
+        final int toTarget = estimateToTarget(v2, target);
+        return new PathCost(toStart, toTarget, v2);
+    }
+
+    // 计算到起点的路径长度
+    private int computeToStart(Vec v, Vec v2) {
+        return costMap.get(v).toStart + map.get(v2);
+    }
+
+    // 估算到终点的路径长度
+    private int estimateToTarget(Vec v2, Vec target) {
+        return target.copy().subtract(v2).distance();
     }
 
 }

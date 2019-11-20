@@ -25,6 +25,11 @@ public class Vec {
         return data[i];
     }
 
+    public Vec set(int i, int val) {
+        data[i] = val;
+        return this;
+    }
+
     public Vec add(Vec v) {
         for (int i = 0; i < data.length; i++) {
             data[i] += v.data[i];
@@ -32,9 +37,26 @@ public class Vec {
         return new Vec(data);
     }
 
-    public Vec set(int i, int val) {
-        data[i] = val;
-        return this;
+    public Vec subtract(Vec v) {
+        for (int i = 0; i < data.length; i++) {
+            data[i] -= v.data[i];
+        }
+        return new Vec(data);
+    }
+
+    public Vec negate(Vec v) {
+        for (int i = 0; i < data.length; i++) {
+            data[i] = -v.data[i];
+        }
+        return new Vec(data);
+    }
+
+    public int distance() {
+        int distance = 0;
+        for (int i = 0; i < data.length; i++) {
+            distance += Math.abs(data[i]);
+        }
+        return distance;
     }
 
     @Override
