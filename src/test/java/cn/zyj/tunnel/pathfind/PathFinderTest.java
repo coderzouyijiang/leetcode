@@ -35,7 +35,7 @@ public class PathFinderTest {
     @Test
     public void test_findPath() {
         final PathFinder finder = PathFinderHelper.createForPushBox(grid, false);
-        final Vec start = searchVec(grid, 'S');
+        final Vec start = searchVec(grid, 'B');
         final Vec target = searchVec(grid, 'T');
         finder.setStartAndTarget(start, target);
         final List<Vec> path = finder.findPath();
