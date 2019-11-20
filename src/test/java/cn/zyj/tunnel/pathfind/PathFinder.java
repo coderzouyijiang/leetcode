@@ -14,6 +14,8 @@ import java.util.Set;
 
 public class PathFinder {
 
+    private String name = "pathFinder";
+
     // 地图
     private final Map<Vec, Integer> map;
 
@@ -104,8 +106,7 @@ public class PathFinder {
         closeSet.add(v);
         for (Vec unitVec : unitVecList) {
             final Vec v2 = v.copy().add(unitVec);
-            final Integer val = map.get(v2);
-            if (val == null || val < 0) {
+            if (isWall(v2)) {
                 continue; // 不可通过的点
             }
             if (closeSet.contains(v2)) {
@@ -128,23 +129,28 @@ public class PathFinder {
         return 1;
     }
 
+    public boolean isWall(Vec v2) {
+        final Integer val = map.get(v2);
+        return val == null || val < 0;
+    }
+
     public List<Vec> findPath() {
         int result;
         for (int i = 0; (result = next()) == 1; i++) {
-            System.out.printf("%02d:\n", i);
+            System.out.printf("[%s]%02d:\n", name, i);
             System.out.println(mapToViews());
         }
         if (result != 0) {
             return null;
         }
         final List<Vec> path = findPath(parentMap, target);
-        System.out.println("step:" + path.size());
-        System.out.println("path:" + path);
+        System.out.printf("[%s]step:%s\n", name, path.size());
+        System.out.printf("[%s]path:%s\n", name, path);
         System.out.println(pathToViews(path));
         return path;
     }
 
-    private String pathToViews(List<Vec> path) {
+    public String pathToViews(List<Vec> path) {
         LinkedHashMap<Vec, String> symbolMap = new LinkedHashMap<>();
         map.forEach((v, val) -> symbolMap.put(v, val >= 0 ? "." : "#"));
         symbolMap.put(start, "S");
@@ -154,7 +160,7 @@ public class PathFinder {
         return Strings.join(lines, '\n');
     }
 
-    private String mapToViews() {
+    public String mapToViews() {
 //            System.out.println("openSet:" + openSet);
 //            System.out.println("closeSet:" + closeSet);
 //            System.out.println("costMap:" + costMap);
@@ -219,4 +225,47 @@ public class PathFinder {
         return target.copy().subtract(v2).distance();
     }
 
+    public Map<Vec, Integer> getMap() {
+        return map;
+    }
+
+    public Vec getDimVec() {
+        return dimVec;
+    }
+
+    public List<Vec> getUnitVecList() {
+        return unitVecList;
+    }
+
+    public Vec getStart() {
+        return start;
+    }
+
+    public Vec getTarget() {
+        return target;
+    }
+
+    public Set<Vec> getOpenSet() {
+        return openSet;
+    }
+
+    public Set<Vec> getCloseSet() {
+        return closeSet;
+    }
+
+    public Map<Vec, Vec> getParentMap() {
+        return parentMap;
+    }
+
+    public Map<Vec, PathCost> getCostMap() {
+        return costMap;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
