@@ -5,9 +5,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PathFinder {
 
@@ -15,14 +17,15 @@ public class PathFinder {
     private final Map<Vec, Integer> map;
 
     // 维度
-    private final int dimNum;
+    private final Vec dimVec;
 
     // 单位向量
     private final List<Vec> unitVecList;
 
-    public PathFinder(Map<Vec, Integer> map, int dimNum, boolean hasHypotenuse) {
+    public PathFinder(Map<Vec, Integer> map, Vec dimVec, boolean hasHypotenuse) {
         this.map = Collections.unmodifiableMap(map);
-        this.dimNum = dimNum;
+        this.dimVec = dimVec;
+        final int dimNum = dimVec.length();
         this.unitVecList = Collections.unmodifiableList(!hasHypotenuse ? initUnitVecList(dimNum) : initUnitVecListHasHypotenuse(dimNum));
     }
 
@@ -88,7 +91,7 @@ public class PathFinder {
     }
 
     public int next() {
-        if (openSet.equals(target)) {
+        if (openSet.contains(target)) {
             return 0; // 找到了终点
         }
         if (openSet.isEmpty()) {
@@ -127,16 +130,59 @@ public class PathFinder {
     public List<Vec> findPath() {
         int result;
         while ((result = next()) == 1) {
-            System.out.println("openSet:" + openSet);
-            System.out.println("closeSet:" + closeSet);
-            System.out.println("costMap:" + costMap);
-            String str = "";
-//            for ()
+            printView();
         }
         if (result != 0) {
             return null;
         }
-        return findPath(parentMap, target);
+        final List<Vec> path = findPath(parentMap, target);
+        return path;
+    }
+
+    private void printView() {
+        //            System.out.println("openSet:" + openSet);
+//            System.out.println("closeSet:" + closeSet);
+//            System.out.println("costMap:" + costMap);
+        LinkedHashMap<String, Set<Vec>> symbolMap = new LinkedHashMap<>();
+        symbolMap.put("S", Collections.singleton(start));
+        symbolMap.put("T", Collections.singleton(target));
+        symbolMap.put("O", openSet);
+        symbolMap.put("X", closeSet);
+        /*
+        Map<String, Set<Vec>> baseSymbolMap = map.entrySet().stream()
+                .collect(Collectors.groupingBy(en -> en.getValue() >= 0 ? "." : "#"
+                        , Collectors.mapping(en -> en.getKey(), Collectors.toSet())));
+        symbolMap.putAll(baseSymbolMap);
+        */
+        final List<String> view1 = mapToView(symbolMap, 1);
+
+        LinkedHashMap<String, Set<Vec>> symbolMap2 = new LinkedHashMap<>();
+        costMap.forEach((v, cost) -> {
+            symbolMap2.put(Double.valueOf(cost.totalCost).intValue() + "", Collections.singleton(v));
+        });
+        final List<String> view2 = mapToView(symbolMap2, 2);
+
+        for (int i = 0; i < view1.size(); i++) {
+            System.out.println(view1.get(i) + "          " + view2.get(i));
+        }
+        System.out.println();
+    }
+
+    private List<String> mapToView(LinkedHashMap<String, Set<Vec>> symbolMap, int width) {
+        List<String> lines = new ArrayList<>();
+        for (int j = 0; j < dimVec.get(1); j++) {
+            String line = "";
+            for (int i = 0; i < dimVec.get(0); i++) {
+                final Vec v = Vec.create(i, j);
+                String symbol = symbolMap.entrySet().stream()
+                        .filter(en -> en.getValue().contains(v))
+                        .findFirst().map(en -> en.getKey())
+                        .orElseGet(() -> map.get(v) >= 0 ? "." : "#");
+                line += String.format("%-" + width + "s", symbol) + " ";
+            }
+            lines.add(line);
+        }
+        return lines;
     }
 
     public List<Vec> findPath(Map<Vec, Vec> parentMap, Vec v) {

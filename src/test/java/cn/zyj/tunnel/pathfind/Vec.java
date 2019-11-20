@@ -17,12 +17,20 @@ public class Vec {
         }
     }
 
+    public static Vec create(int... data) {
+        return new Vec(data);
+    }
+
     public Vec copy() {
         return new Vec(Arrays.copyOf(data, data.length));
     }
 
     public int get(int i) {
         return data[i];
+    }
+
+    public int length() {
+        return data.length;
     }
 
     public Vec set(int i, int val) {

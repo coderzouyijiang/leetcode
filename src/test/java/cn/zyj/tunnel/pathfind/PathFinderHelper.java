@@ -13,6 +13,7 @@ public class PathFinderHelper {
         valMap.put('B', 1);
         valMap.put('T', 1);
 
+        final Vec dimVec = Vec.create(grid[0].length, grid.length);
         Map<Vec, Integer> map = new HashMap<>();
         for (int i = 0; i < grid.length; i++) {
             final char[] line = grid[i];
@@ -22,10 +23,10 @@ public class PathFinderHelper {
                 if (val2 == null) {
                     throw new IllegalArgumentException("找不到对应的映射,val(" + i + "," + j + ")=" + val);
                 }
-                map.put(new Vec(new int[]{j, i}), val2);
+                map.put(Vec.create(j, i), val2);
             }
         }
-        return new PathFinder(map, 2, hasHypotenuse);
+        return new PathFinder(map, dimVec, hasHypotenuse);
     }
 
 }
