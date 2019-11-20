@@ -150,7 +150,7 @@ public class PathFinder {
         symbolMap.put(start, "S");
         symbolMap.put(target, "T");
         path.forEach(v -> symbolMap.put(v, "@"));
-        final List<String> lines = mapToView(symbolMap, 1);
+        final List<String> lines = mapToView(symbolMap, 2);
         return Strings.join(lines, '\n');
     }
 
@@ -165,7 +165,7 @@ public class PathFinder {
         symbolMap.put(start, "S");
         symbolMap.put(target, "T");
 
-        final List<String> view1 = mapToView(symbolMap, 1);
+        final List<String> view1 = mapToView(symbolMap, 2);
 
         LinkedHashMap<Vec, String> symbolMap2 = new LinkedHashMap<>();
         map.forEach((v, val) -> symbolMap2.put(v, val >= 0 ? "." : "#"));
