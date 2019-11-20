@@ -51,8 +51,8 @@ public class Vec {
         return new Vec(data);
     }
 
-    public int distance() {
-        int distance = 0;
+    public double distance() {
+        double distance = 0;
         for (int i = 0; i < data.length; i++) {
             distance += Math.abs(data[i]);
         }

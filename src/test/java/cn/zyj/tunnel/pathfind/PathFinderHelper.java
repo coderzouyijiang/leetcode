@@ -22,7 +22,7 @@ public class PathFinderHelper {
                 if (val2 == null) {
                     throw new IllegalArgumentException("找不到对应的映射,val(" + i + "," + j + ")=" + val);
                 }
-                map.put(new Vec(new int[]{i, j}), val2);
+                map.put(new Vec(new int[]{j, i}), val2);
             }
         }
         return new PathFinder(map, 2, hasHypotenuse);
