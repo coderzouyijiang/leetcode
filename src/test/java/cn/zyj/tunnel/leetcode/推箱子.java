@@ -8,7 +8,6 @@ import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -311,5 +310,22 @@ public class 推箱子 {
         final boolean isConnect = isConnect(grid1, player, new Pos(2, 4), box, new LinkedHashSet<>());
         log.info("");
     }
+
+    private static class Node {
+        public final Pos pos;
+        public final Node parent;
+
+        public Node(Pos pos, Node parent) {
+            this.pos = pos;
+            this.parent = parent;
+        }
+    }
+
+    @Test
+    public void test_aStar() {
+        final PathFinder finder = PathFinderHelper.createForPushBox(grid1, true);
+        log.info("");
+    }
+
 
 }
