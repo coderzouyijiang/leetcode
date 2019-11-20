@@ -1,5 +1,7 @@
 package cn.zyj.tunnel.pathfind;
 
+import org.apache.logging.log4j.util.Strings;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class PathFinder {
 
@@ -129,55 +130,62 @@ public class PathFinder {
 
     public List<Vec> findPath() {
         int result;
-        while ((result = next()) == 1) {
-            printView();
+        for (int i = 0; (result = next()) == 1; i++) {
+            System.out.printf("%02d:\n", i);
+            System.out.println(mapToViews());
         }
         if (result != 0) {
             return null;
         }
         final List<Vec> path = findPath(parentMap, target);
+        System.out.println("result:" + path + "\n" + pathToViews(path));
         return path;
     }
 
-    private void printView() {
-        //            System.out.println("openSet:" + openSet);
-//            System.out.println("closeSet:" + closeSet);
-//            System.out.println("costMap:" + costMap);
-        LinkedHashMap<String, Set<Vec>> symbolMap = new LinkedHashMap<>();
-        symbolMap.put("S", Collections.singleton(start));
-        symbolMap.put("T", Collections.singleton(target));
-        symbolMap.put("O", openSet);
-        symbolMap.put("X", closeSet);
-        /*
-        Map<String, Set<Vec>> baseSymbolMap = map.entrySet().stream()
-                .collect(Collectors.groupingBy(en -> en.getValue() >= 0 ? "." : "#"
-                        , Collectors.mapping(en -> en.getKey(), Collectors.toSet())));
-        symbolMap.putAll(baseSymbolMap);
-        */
-        final List<String> view1 = mapToView(symbolMap, 1);
-
-        LinkedHashMap<String, Set<Vec>> symbolMap2 = new LinkedHashMap<>();
-        costMap.forEach((v, cost) -> {
-            symbolMap2.put(Double.valueOf(cost.totalCost).intValue() + "", Collections.singleton(v));
-        });
-        final List<String> view2 = mapToView(symbolMap2, 2);
-
-        for (int i = 0; i < view1.size(); i++) {
-            System.out.println(view1.get(i) + "          " + view2.get(i));
-        }
-        System.out.println();
+    private String pathToViews(List<Vec> path) {
+        LinkedHashMap<Vec, String> symbolMap = new LinkedHashMap<>();
+        map.forEach((v, val) -> symbolMap.put(v, val >= 0 ? "." : "#"));
+        symbolMap.put(start, "S");
+        symbolMap.put(target, "T");
+        path.forEach(v -> symbolMap.put(v, "@"));
+        final List<String> lines = mapToView(symbolMap, 1);
+        return Strings.join(lines, '\n');
     }
 
-    private List<String> mapToView(LinkedHashMap<String, Set<Vec>> symbolMap, int width) {
+    private String mapToViews() {
+//            System.out.println("openSet:" + openSet);
+//            System.out.println("closeSet:" + closeSet);
+//            System.out.println("costMap:" + costMap);
+        LinkedHashMap<Vec, String> symbolMap = new LinkedHashMap<>();
+        map.forEach((v, val) -> symbolMap.put(v, val >= 0 ? "." : "#"));
+        openSet.forEach(v -> symbolMap.put(v, "O"));
+        closeSet.forEach(v -> symbolMap.put(v, "X"));
+        symbolMap.put(start, "S");
+        symbolMap.put(target, "T");
+
+        final List<String> view1 = mapToView(symbolMap, 1);
+
+        LinkedHashMap<Vec, String> symbolMap2 = new LinkedHashMap<>();
+        map.forEach((v, val) -> symbolMap2.put(v, val >= 0 ? "." : "#"));
+        symbolMap2.put(start, "S");
+        symbolMap2.put(target, "T");
+        costMap.forEach((v, cost) -> symbolMap2.put(v, Double.valueOf(cost.totalCost).intValue() + ""));
+        final List<String> view2 = mapToView(symbolMap2, 2);
+
+        String str = "";
+        for (int i = 0; i < view1.size(); i++) {
+            str += view1.get(i) + "          " + view2.get(i) + "\n";
+        }
+        return str;
+    }
+
+    private List<String> mapToView(LinkedHashMap<Vec, String> symbolMap, int width) {
         List<String> lines = new ArrayList<>();
         for (int j = 0; j < dimVec.get(1); j++) {
             String line = "";
             for (int i = 0; i < dimVec.get(0); i++) {
                 final Vec v = Vec.create(i, j);
-                String symbol = symbolMap.entrySet().stream()
-                        .filter(en -> en.getValue().contains(v))
-                        .findFirst().map(en -> en.getKey())
-                        .orElseGet(() -> map.get(v) >= 0 ? "." : "#");
+                final String symbol = symbolMap.getOrDefault(v, "?");
                 line += String.format("%-" + width + "s", symbol) + " ";
             }
             lines.add(line);
@@ -189,8 +197,8 @@ public class PathFinder {
         List<Vec> path = new ArrayList<>();
         Vec pre;
         while ((pre = parentMap.get(v)) != null) {
-            v = pre;
             path.add(v);
+            v = pre;
         }
         return path;
     }

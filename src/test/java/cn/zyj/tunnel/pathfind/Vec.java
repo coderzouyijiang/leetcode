@@ -1,6 +1,7 @@
 package cn.zyj.tunnel.pathfind;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class Vec {
 
@@ -84,6 +85,7 @@ public class Vec {
 
     @Override
     public String toString() {
-        return "Vec" + Arrays.toString(data);
+        final String str = Arrays.toString(data);
+        return "(" + str.substring(1, str.length() - 1) + ")";
     }
 }
