@@ -138,7 +138,9 @@ public class PathFinder {
             return null;
         }
         final List<Vec> path = findPath(parentMap, target);
-        System.out.println("result:" + path + "\n" + pathToViews(path));
+        System.out.println("step:" + path.size());
+        System.out.println("path:" + path);
+        System.out.println(pathToViews(path));
         return path;
     }
 
