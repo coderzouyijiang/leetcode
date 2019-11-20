@@ -1,4 +1,4 @@
-package cn.zyj.tunnel.leetcode;
+package cn.zyj.tunnel.pathfind;
 
 import org.junit.Assert;
 import org.junit.Test;

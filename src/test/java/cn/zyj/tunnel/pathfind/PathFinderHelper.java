@@ -1,4 +1,4 @@
-package cn.zyj.tunnel.leetcode;
+package cn.zyj.tunnel.pathfind;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ public class PathFinderHelper {
         valMap.put('B', 1);
         valMap.put('T', 1);
 
-        Map<int[], Integer> map = new HashMap<>();
+        Map<Vec, Integer> map = new HashMap<>();
         for (int i = 0; i < grid.length; i++) {
             final char[] line = grid[i];
             for (int j = 0; j < line.length; j++) {
@@ -22,7 +22,7 @@ public class PathFinderHelper {
                 if (val2 == null) {
                     throw new IllegalArgumentException("找不到对应的映射,val(" + i + "," + j + ")=" + val);
                 }
-                map.put(new int[]{i, j}, val2);
+                map.put(new Vec(new int[]{i, j}), val2);
             }
         }
         return new PathFinder(map, 2, hasHypotenuse);
