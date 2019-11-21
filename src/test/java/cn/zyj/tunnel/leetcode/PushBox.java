@@ -1,4 +1,4 @@
-package cn.zyj.tunnel.pathfind;
+package cn.zyj.tunnel.leetcode;
 
 
 import java.util.ArrayList;

@@ -1,5 +1,6 @@
 package cn.zyj.tunnel.pathfind;
 
+import cn.zyj.tunnel.leetcode.PushBox;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -138,18 +139,23 @@ public class PathFinderTest {
             {'#', 'S', '#', '.', 'B', 'T', '#'},
             {'#', '#', '#', '#', '#', '#', '#'}};
 
+    char[][] grid4 = {
+            {'#', '.', '.', '#', 'T', '#', '#', '#', '#'},
+            {'#', '.', '.', '#', '.', '#', '.', '.', '#'},
+            {'#', '.', '.', '#', '.', '#', 'B', '.', '#'},
+            {'#', '.', '.', '.', '.', '.', '.', '.', '#'},
+            {'#', '.', '.', '.', '.', '#', '.', 'S', '#'},
+            {'#', '.', '.', '#', '.', '#', '#', '#', '#'},
+    };
+
     @Test
     public void test_minPushBox() {
+        /*
         Assert.assertEquals(3, minPushBox(grid1));
         Assert.assertEquals(5, minPushBox(grid2));
         Assert.assertEquals(-1, minPushBox(grid3));
+        */
+        Assert.assertEquals(1, minPushBox(grid4));
     }
 
-    @Test
-    public void test_minPushBox2() {
-        PushBox pushBox = new PushBox();
-        Assert.assertEquals(3, pushBox.minPushBox(grid1));
-        Assert.assertEquals(5, pushBox.minPushBox(grid2));
-        Assert.assertEquals(-1, pushBox.minPushBox(grid3));
-    }
 }

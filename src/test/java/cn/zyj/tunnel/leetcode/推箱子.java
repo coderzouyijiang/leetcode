@@ -329,5 +329,12 @@ public class 推箱子 {
         log.info("");
     }
 
+    @Test
+    public void test_minPushBox2() {
+        PushBox pushBox = new PushBox();
+        Assert.assertEquals(3, pushBox.minPushBox(grid1));
+        Assert.assertEquals(5, pushBox.minPushBox(grid2));
+        Assert.assertEquals(-1, pushBox.minPushBox(grid3));
+    }
 
 }
