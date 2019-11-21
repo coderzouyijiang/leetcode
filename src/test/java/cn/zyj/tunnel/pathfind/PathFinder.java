@@ -179,8 +179,9 @@ public class PathFinder {
         map.forEach((v, val) -> symbolMap2.put(v, val >= 0 ? "." : "#"));
         symbolMap2.put(start, "S");
         symbolMap2.put(target, "T");
-        costMap.forEach((v, cost) -> symbolMap2.put(v, cost.totalCost + ""));
-        final List<String> view2 = mapToView(symbolMap2, 2);
+//        costMap.forEach((v, cost) -> symbolMap2.put(v, cost.totalCost + ""));
+        costMap.forEach((v, cost) -> symbolMap2.put(v, cost.toStart + "+" + cost.toTarget));
+        final List<String> view2 = mapToView(symbolMap2, 5);
 
         final Vec v = openSet.stream().min(Comparator.comparingInt(it -> costMap.get(it).totalCost)).orElse(null);
         List<String> view0 = pathToViews(findPath(parentMap, v));
