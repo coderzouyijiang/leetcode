@@ -101,7 +101,7 @@ public class PathFinder {
             return -1; // 终点不存在
         }
         // 找到代价最小的路径
-        final Vec v = openSet.stream().min(Comparator.comparingDouble(it -> costMap.get(it).totalCost)).orElse(null);
+        final Vec v = openSet.stream().min(Comparator.comparingInt(it -> costMap.get(it).totalCost)).orElse(null);
         openSet.remove(v);
         closeSet.add(v);
         for (Vec unitVec : unitVecList) {
@@ -177,7 +177,7 @@ public class PathFinder {
         map.forEach((v, val) -> symbolMap2.put(v, val >= 0 ? "." : "#"));
         symbolMap2.put(start, "S");
         symbolMap2.put(target, "T");
-        costMap.forEach((v, cost) -> symbolMap2.put(v, Double.valueOf(cost.totalCost).intValue() + ""));
+        costMap.forEach((v, cost) -> symbolMap2.put(v, cost.totalCost + ""));
         final List<String> view2 = mapToView(symbolMap2, 2);
 
         String str = "";
@@ -216,12 +216,12 @@ public class PathFinder {
     }
 
     // 计算到起点的路径长度
-    private double computeToStart(Vec v, Vec v2) {
+    private int computeToStart(Vec v, Vec v2) {
         return costMap.get(v).toStart + map.get(v2);
     }
 
     // 估算到终点的路径长度
-    private double estimateToTarget(Vec v2, Vec target) {
+    private int estimateToTarget(Vec v2, Vec target) {
         return target.copy().subtract(v2).distance();
     }
 
