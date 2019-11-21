@@ -94,12 +94,14 @@ public class PushBox {
     public static class VecMap<T> {
 
         private final T[][] data;
+        private final Vec dimVec;
         private int size;
 
-        public VecMap(int xLen, int yLen) {
-            Object[][] data = new Object[xLen][];
-            for (int i = 0; i < xLen; i++) {
-                data[i] = new Object[yLen];
+        public VecMap(Vec dimVec) {
+            this.dimVec = dimVec;
+            Object[][] data = new Object[dimVec.x][];
+            for (int i = 0; i < dimVec.x; i++) {
+                data[i] = new Object[dimVec.y];
             }
             this.data = (T[][]) data;
             this.size = 0;
@@ -142,6 +144,9 @@ public class PushBox {
         }
 
         public T get(Vec v) {
+            if (v.x < 0 || v.x >= dimVec.x || v.y < 0 || v.y >= dimVec.y) {
+                return null;
+            }
             return this.data[v.x][v.y];
         }
 
@@ -315,8 +320,8 @@ public class PushBox {
             this.target = target;
             this.openSet = new HashSet<>();
             this.closeSet = new HashSet<>();
-            this.parentMap = new VecMap<>(dimVec.x, dimVec.y);
-            this.costMap = new VecMap<>(dimVec.x, dimVec.y);
+            this.parentMap = new VecMap<>(dimVec);
+            this.costMap = new VecMap<>(dimVec);
 
             openSet.add(start);
             costMap.put(start, new PathCost(0, estimateToTarget(start, target), start));
@@ -345,7 +350,7 @@ public class PushBox {
         valMap.put('T', 1);
 
         final Vec dimVec = Vec.create(grid[0].length, grid.length);
-        VecMap<Integer> map = new VecMap<>(dimVec.x, dimVec.y);
+        VecMap<Integer> map = new VecMap<>(dimVec);
         for (int i = 0; i < grid.length; i++) {
             final char[] line = grid[i];
             for (int j = 0; j < line.length; j++) {
