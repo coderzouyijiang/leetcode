@@ -58,9 +58,11 @@ public class PathFinderTest {
     public int minPushBox(char[][] grid) {
         final PathFinder playerFinder = PathFinderHelper.createForPushBox(grid, false);
         playerFinder.setName("player");
+        playerFinder.setLogLevel(1);
 
         final PathFinder pathFinder = PathFinderHelper.createForPushBox(grid, false);
         pathFinder.setName("box");
+        pathFinder.setLogLevel(11);
         final Vec player = searchVec(grid, 'S');
         final Vec start = searchVec(grid, 'B');
         final Vec target = searchVec(grid, 'T');
@@ -91,7 +93,7 @@ public class PathFinderTest {
                 if (pathFinder.isWall(v3)) {
                     // 不可能推
                     it.remove();
-                    pathFinder.getCloseSet().add(v);
+//                    pathFinder.getCloseSet().add(v);
                     continue;
                 } else {
                     // 能推，前提 v2和v3连通
@@ -100,8 +102,9 @@ public class PathFinderTest {
                     playerFinder.getCloseSet().add(v1);
                     final List<Vec> path = playerFinder.findPath();
                     if (path == null) {
-                        it.remove();
-                        pathFinder.getCloseSet().add(v);
+//                        it.remove();
+//                        pathFinder.getCloseSet().add(v);
+                        playerFinder.getCostMap().computeIfPresent(v, (k, cost) -> new PathCost(cost.toStart + 20, cost.toTarget, k));
                     }
                 }
             }
@@ -114,7 +117,7 @@ public class PathFinderTest {
         final List<Vec> path = pathFinder.findPath(pathFinder.getParentMap(), target);
         System.out.println("step:" + path.size());
         System.out.println("path:" + path);
-        System.out.println(pathFinder.pathToViews(path));
+        pathFinder.pathToViews(path).forEach(System.out::println);
         return path != null ? path.size() : -1;
     }
 
@@ -155,7 +158,7 @@ public class PathFinderTest {
         Assert.assertEquals(5, minPushBox(grid2));
         Assert.assertEquals(-1, minPushBox(grid3));
         */
-        Assert.assertEquals(1, minPushBox(grid4));
+        Assert.assertEquals(8, minPushBox(grid4));
     }
 
     @Test
@@ -166,7 +169,7 @@ public class PathFinderTest {
         Assert.assertEquals(5, pushBox.minPushBox(grid2));
         Assert.assertEquals(-1, pushBox.minPushBox(grid3));
         */
-        Assert.assertEquals(1, pushBox.minPushBox(grid4));
+        Assert.assertEquals(8, pushBox.minPushBox(grid4));
     }
 
 }

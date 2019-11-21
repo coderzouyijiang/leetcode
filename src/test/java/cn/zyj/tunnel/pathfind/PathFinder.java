@@ -1,7 +1,5 @@
 package cn.zyj.tunnel.pathfind;
 
-import org.apache.logging.log4j.util.Strings;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,6 +13,7 @@ import java.util.Set;
 public class PathFinder {
 
     private String name = "pathFinder";
+    private int logLevel = 0;
 
     // 地图
     private final Map<Vec, Integer> map;
@@ -137,27 +136,30 @@ public class PathFinder {
     public List<Vec> findPath() {
         int result;
         for (int i = 0; (result = next()) == 1; i++) {
-            System.out.printf("[%s]%02d:\n", name, i);
-            System.out.println(mapToViews());
+            if (logLevel % 100 >= 10) {
+                System.out.printf("[%s]%02d:\n", name, i);
+                System.out.println(mapToViews());
+            }
         }
         if (result != 0) {
             return null;
         }
         final List<Vec> path = findPath(parentMap, target);
-        System.out.printf("[%s]step:%s\n", name, path.size());
-        System.out.printf("[%s]path:%s\n", name, path);
-        System.out.println(pathToViews(path));
+        if (logLevel % 10 >= 1) {
+            System.out.printf("[%s]step:%s\n", name, path.size());
+            System.out.printf("[%s]path:%s\n", name, path);
+            pathToViews(path).forEach(System.out::println);
+        }
         return path;
     }
 
-    public String pathToViews(List<Vec> path) {
+    public List<String> pathToViews(List<Vec> path) {
         LinkedHashMap<Vec, String> symbolMap = new LinkedHashMap<>();
         map.forEach((v, val) -> symbolMap.put(v, val >= 0 ? "." : "#"));
         symbolMap.put(start, "S");
         symbolMap.put(target, "T");
         path.forEach(v -> symbolMap.put(v, "@"));
-        final List<String> lines = mapToView(symbolMap, 2);
-        return Strings.join(lines, '\n');
+        return mapToView(symbolMap, 2);
     }
 
     public String mapToViews() {
@@ -180,9 +182,12 @@ public class PathFinder {
         costMap.forEach((v, cost) -> symbolMap2.put(v, cost.totalCost + ""));
         final List<String> view2 = mapToView(symbolMap2, 2);
 
+        final Vec v = openSet.stream().min(Comparator.comparingInt(it -> costMap.get(it).totalCost)).orElse(null);
+        List<String> view0 = pathToViews(findPath(parentMap, v));
+
         String str = "";
         for (int i = 0; i < view1.size(); i++) {
-            str += view1.get(i) + "          " + view2.get(i) + "\n";
+            str += view0.get(i) + "  |   " + view1.get(i) + "  |   " + view2.get(i) + "\n";
         }
         return str;
     }
@@ -267,5 +272,13 @@ public class PathFinder {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int isLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(int logLevel) {
+        this.logLevel = logLevel;
     }
 }
