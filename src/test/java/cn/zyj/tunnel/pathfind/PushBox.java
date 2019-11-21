@@ -1,15 +1,21 @@
 package cn.zyj.tunnel.pathfind;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-@RunWith(JUnit4.class)
-public class PushBoxTest {
+/**
+ * 推箱子终极版 on 20191121
+ */
+public class PushBox {
 
     public static class Vec {
         public final int x;
@@ -54,6 +60,10 @@ public class PushBoxTest {
         public int distance() {
             return Math.abs(x) + Math.abs(y);
         }
+
+        public static Vec create(int x, int y) {
+            return new Vec(x, y);
+        }
     }
 
     public static class PathCost {
@@ -83,12 +93,12 @@ public class PushBoxTest {
 
     public static class VecMap<T> {
 
-        private T[][] data;
+        private final T[][] data;
         private int size;
 
         public VecMap(int xLen, int yLen) {
-            Object[] data = new Object[xLen];
-            for (int i = 0; i < yLen; i++) {
+            Object[][] data = new Object[xLen][];
+            for (int i = 0; i < xLen; i++) {
                 data[i] = new Object[yLen];
             }
             this.data = (T[][]) data;
@@ -143,8 +153,8 @@ public class PushBoxTest {
             }
             if (value != null) {
                 size++;
+                this.data[v.x][v.y] = value;
             }
-            this.data[v.x][v.y] = value;
             return oldVal;
         }
 
@@ -157,6 +167,7 @@ public class PushBoxTest {
     public static class PathFinder {
 
         private VecMap<Integer> map;
+        private Vec dimVec;
         // 起点
         private Vec start;
         // 目标
@@ -239,6 +250,171 @@ public class PushBoxTest {
             return target.subtract(v2).distance();
         }
 
+        public List<Vec> findPath() {
+            int result;
+            for (int i = 0; (result = next()) == 1; i++) {
+            }
+            if (result != 0) {
+                return null;
+            }
+            final List<Vec> path = findPath(parentMap, target);
+            return path;
+        }
+
+        public List<Vec> findPath(VecMap<Vec> parentMap, Vec v) {
+            List<Vec> path = new ArrayList<>();
+            Vec pre;
+            while ((pre = parentMap.get(v)) != null) {
+                path.add(v);
+                v = pre;
+            }
+            return path;
+        }
+
+        public VecMap<Integer> getMap() {
+            return map;
+        }
+
+        public Vec getStart() {
+            return start;
+        }
+
+        public Vec getTarget() {
+            return target;
+        }
+
+        public Set<Vec> getOpenSet() {
+            return openSet;
+        }
+
+        public Set<Vec> getCloseSet() {
+            return closeSet;
+        }
+
+        public VecMap<Vec> getParentMap() {
+            return parentMap;
+        }
+
+        public VecMap<PathCost> getCostMap() {
+            return costMap;
+        }
+
+        public static LinkedHashSet<Vec> getUnitVecList() {
+            return unitVecList;
+        }
+
+        public PathFinder(VecMap<Integer> map, Vec dimVec) {
+            this.map = map;
+            this.dimVec = dimVec;
+        }
+
+        // 设置起点和目标点
+        public void setStartAndTarget(Vec start, Vec target) {
+            this.start = start;
+            this.target = target;
+            this.openSet = new HashSet<>();
+            this.closeSet = new HashSet<>();
+            this.parentMap = new VecMap<>(dimVec.x, dimVec.y);
+            this.costMap = new VecMap<>(dimVec.x, dimVec.y);
+
+            openSet.add(start);
+            costMap.put(start, new PathCost(0, estimateToTarget(start, target), start));
+        }
+
     }
 
+    public Vec searchVec(char[][] grid, char x) {
+        for (int i = 0; i < grid.length; i++) {
+            final char[] line = grid[i];
+            for (int j = 0; j < line.length; j++) {
+                if (line[j] == x) {
+                    return Vec.create(j, i);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static PathFinder createForPushBox(char[][] grid) {
+        Map<Character, Integer> valMap = new HashMap<>();
+        valMap.put('#', -1); // 不可移动
+        valMap.put('.', 1); // 移动代价是1
+        valMap.put('S', 1);
+        valMap.put('B', 1);
+        valMap.put('T', 1);
+
+        final Vec dimVec = Vec.create(grid[0].length, grid.length);
+        VecMap<Integer> map = new VecMap<>(dimVec.x, dimVec.y);
+        for (int i = 0; i < grid.length; i++) {
+            final char[] line = grid[i];
+            for (int j = 0; j < line.length; j++) {
+                final char val = line[j];
+                final Integer val2 = valMap.get(val);
+                if (val2 == null) {
+                    throw new IllegalArgumentException("找不到对应的映射,val(" + i + "," + j + ")=" + val);
+                }
+                map.put(Vec.create(j, i), val2);
+            }
+        }
+        return new PathFinder(map, dimVec);
+    }
+
+    public List<Vec> minPushBoxPath(char[][] grid) {
+        final PathFinder playerFinder = createForPushBox(grid);
+
+        final PathFinder pathFinder = createForPushBox(grid);
+        final Vec player = searchVec(grid, 'S');
+        final Vec start = searchVec(grid, 'B');
+        final Vec target = searchVec(grid, 'T');
+        pathFinder.setStartAndTarget(start, target);
+
+        int result;
+        for (int i = 0; (result = pathFinder.next()) == 1; i++) {
+            // 遍历所有openVec的转折点
+            final Iterator<Vec> it = pathFinder.getOpenSet().iterator();
+            while (it.hasNext()) {
+                final Vec v = it.next();
+                final Vec v1 = pathFinder.getParentMap().get(v);
+                if (v1 == null) continue;
+                final Vec dv1 = v.subtract(v1);
+                final Vec v2;
+                if (i > 0) {
+                    v2 = pathFinder.getParentMap().get(v1);
+                    if (v2 == null) continue;
+                    final Vec dv2 = v1.subtract(v2);
+                    if (dv1.equals(dv2)) continue; // 走直线不管
+                } else {
+                    v2 = player;
+                }
+                final Vec v3 = v1.subtract(dv1);
+                // 人:v2->v3
+                if (pathFinder.isWall(v3)) {
+                    // 不可能推
+                    it.remove();
+                    pathFinder.getCloseSet().add(v);
+                    continue;
+                } else {
+                    // 能推，前提 v2和v3连通
+                    playerFinder.setStartAndTarget(v2, v3);
+                    // player从v2到v3时，箱子在v1，视为墙
+                    playerFinder.getCloseSet().add(v1);
+                    final List<Vec> path = playerFinder.findPath();
+                    if (path == null) {
+                        it.remove();
+                        pathFinder.getCloseSet().add(v);
+                    }
+                }
+            }
+        }
+        if (result != 0) {
+            return null;
+        }
+        final List<Vec> path = pathFinder.findPath(pathFinder.getParentMap(), target);
+        return path;
+    }
+
+    public int minPushBox(char[][] grid) {
+        List<Vec> path = minPushBoxPath(grid);
+        return path != null ? path.size() : -1;
+    }
 }
