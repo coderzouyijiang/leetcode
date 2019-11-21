@@ -167,6 +167,7 @@ public class PushBox {
     public static class PathFinder {
 
         private VecMap<Integer> map;
+
         private Vec dimVec;
         // 起点
         private Vec start;
