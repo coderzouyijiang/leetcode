@@ -58,7 +58,7 @@ public class PathFinderTest {
     public int minPushBox(char[][] grid) {
         final PathFinder playerFinder = PathFinderHelper.createForPushBox(grid, false);
         playerFinder.setName("player");
-        playerFinder.setLogLevel(1);
+        playerFinder.setLogLevel(0);
 
         final PathFinder pathFinder = PathFinderHelper.createForPushBox(grid, false);
         pathFinder.setName("box");
@@ -102,9 +102,9 @@ public class PathFinderTest {
                     playerFinder.getCloseSet().add(v1);
                     final List<Vec> path = playerFinder.findPath();
                     if (path == null) {
-//                        it.remove();
+                        it.remove();
 //                        pathFinder.getCloseSet().add(v);
-                        playerFinder.getCostMap().computeIfPresent(v, (k, cost) -> new PathCost(cost.toStart + 20, cost.toTarget, k));
+//                        playerFinder.getCostMap().computeIfPresent(v, (k, cost) -> new PathCost(cost.toStart + 20, cost.toTarget, k));
                     }
                 }
             }
