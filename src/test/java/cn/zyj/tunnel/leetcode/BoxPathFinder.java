@@ -543,7 +543,7 @@ public class BoxPathFinder {
     private void forEach(int[][] map, BiConsumer<Vec2, Integer> consumer) {
         for (int i = 0; i < dimVec.x; i++) {
             for (int j = 0; j < dimVec.y; j++) {
-                consumer.accept(Vec2.create(j, i), map[i][j]);
+                consumer.accept(Vec2.create(i, j), map[i][j]);
             }
         }
     }
@@ -553,7 +553,7 @@ public class BoxPathFinder {
             for (int j = 0; j < dimVec.y; j++) {
                 for (int d = DIR_TOP; d <= DIR_LEFT; d++) {
                     if (map[i][j][d] == null) continue;
-                    consumer.accept(Vec3.create(j, i, d), map[i][j][d]);
+                    consumer.accept(Vec3.create(i, j, d), map[i][j][d]);
                 }
             }
         }
@@ -590,21 +590,21 @@ public class BoxPathFinder {
         final List<String> view2 = mapToView(symbolMap2, 5);
 
 //        final Vec3 v = openSet.stream().min(Comparator.comparingInt(it -> getCost(it).totalCost)).orElse(null);
-//        List<String> view0 = pathToViews(findPath(parentMap, v));
+        List<String> view0 = pathToViews(findPath(parentMap, newVec));
 
         String str = "";
         for (int i = 0; i < view1.size(); i++) {
-//            str += view0.get(i) + "  |   " + view1.get(i) + "  |   " + view2.get(i) + "\n";
-            str += view1.get(i) + "  |   " + view2.get(i) + "\n";
+            str += view0.get(i) + "  |   " + view1.get(i) + "  |   " + view2.get(i) + "\n";
+//            str += view1.get(i) + "  |   " + view2.get(i) + "\n";
         }
         return str;
     }
 
     private List<String> mapToView(LinkedHashMap<Vec2, String> symbolMap, int width) {
         List<String> lines = new ArrayList<>();
-        for (int j = 0; j < dimVec.x; j++) {
+        for (int i = 0; i < dimVec.x; i++) {
             String line = "";
-            for (int i = 0; i < dimVec.y; i++) {
+            for (int j = 0; j < dimVec.y; j++) {
                 final Vec2 v = Vec2.create(i, j);
                 final String symbol = symbolMap.getOrDefault(v, "?");
                 line += String.format("%-" + width + "s", symbol) + " ";
