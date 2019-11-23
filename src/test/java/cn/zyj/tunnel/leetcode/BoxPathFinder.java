@@ -239,7 +239,7 @@ public class BoxPathFinder {
             Vec3 p = start.toVec3(d);
             openSet.add(p);
             openSet2.add(start);
-//            putCost(p, startCost);
+            putCost(p, startCost);
 //            putParent(p, player2.toVec3(d));
         }
     }
