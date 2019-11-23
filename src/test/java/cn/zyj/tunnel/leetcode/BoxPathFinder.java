@@ -169,7 +169,7 @@ public class BoxPathFinder {
     // 路径代价 v -> (p,h,g)
     private PathCost[][][] costMap;
 
-    private Vec3 realTarget;
+    private Vec3 newVec;
 
     private PathFinder playerPathFinder;
 
@@ -246,7 +246,6 @@ public class BoxPathFinder {
 
     public int next() {
         if (openSet2.contains(target)) {
-            realTarget = openSet.stream().filter(it -> it.toVec2().equals(target)).findFirst().orElse(null);
             return 0; // 找到了终点
         }
         if (openSet.isEmpty()) {
@@ -288,7 +287,7 @@ public class BoxPathFinder {
                 putParent(p2_, p);
                 putCost(p2_, cost);
             }
-
+            newVec = p2_;
         }
         return 1;
     }
@@ -302,7 +301,7 @@ public class BoxPathFinder {
         if (result != 0) {
             return null;
         }
-        final List<Vec3> path = findPath(parentMap, realTarget);
+        final List<Vec3> path = findPath(parentMap, newVec);
         System.out.printf("step:%s\n", path.size());
         System.out.printf("path:%s\n", path);
         return path;
@@ -590,12 +589,13 @@ public class BoxPathFinder {
         forEach(costMap, (v, cost) -> symbolMap2.put(v.toVec2(), cost.toStart + "+" + cost.toTarget));
         final List<String> view2 = mapToView(symbolMap2, 5);
 
-        final Vec3 v = openSet.stream().min(Comparator.comparingInt(it -> getCost(it).totalCost)).orElse(null);
-        List<String> view0 = pathToViews(findPath(parentMap, v));
+//        final Vec3 v = openSet.stream().min(Comparator.comparingInt(it -> getCost(it).totalCost)).orElse(null);
+//        List<String> view0 = pathToViews(findPath(parentMap, v));
 
         String str = "";
         for (int i = 0; i < view1.size(); i++) {
-            str += view0.get(i) + "  |   " + view1.get(i) + "  |   " + view2.get(i) + "\n";
+//            str += view0.get(i) + "  |   " + view1.get(i) + "  |   " + view2.get(i) + "\n";
+            str += view1.get(i) + "  |   " + view2.get(i) + "\n";
         }
         return str;
     }
