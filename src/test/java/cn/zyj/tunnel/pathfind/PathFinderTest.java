@@ -1,5 +1,6 @@
 package cn.zyj.tunnel.pathfind;
 
+import cn.zyj.tunnel.leetcode.BoxPathFinder;
 import cn.zyj.tunnel.leetcode.PushBox;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -16,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 @Slf4j
 @RunWith(JUnit4.class)
@@ -280,6 +282,14 @@ public class PathFinderTest {
         Assert.assertEquals(-1, pushBox.minPushBox(grid3));
         */
         Assert.assertEquals(8, pushBox.minPushBox(grid4));
+    }
+
+    @Test
+    public void test_minPushBox3() {
+
+        Assert.assertEquals(3, BoxPathFinder.minPath(grid1).size());
+        Assert.assertEquals(3, BoxPathFinder.minPath(grid2).size());
+        Assert.assertEquals(1, BoxPathFinder.minPath(grid3).size());
     }
 
 }
