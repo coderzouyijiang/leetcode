@@ -480,11 +480,17 @@ public class BoxPathFinder {
 
     public static List<Vec2> minPath(char[][] grid) {
         int[][] map = BoxPathFinder.createMap(grid);
-        BoxPathFinder.PathFinder pathFinder = new BoxPathFinder.PathFinder(map);
-        final BoxPathFinder.Vec2 player = BoxPathFinder.searchVec2(grid, 'S');
-        final BoxPathFinder.Vec2 box = BoxPathFinder.searchVec2(grid, 'B');
-        final BoxPathFinder.Vec2 target = BoxPathFinder.searchVec2(grid, 'T');
+        PathFinder pathFinder = new PathFinder(map);
+//        final Vec2 player = BoxPathFinder.searchVec2(grid, 'S');
+        final Vec2 box = BoxPathFinder.searchVec2(grid, 'B');
+        final Vec2 target = BoxPathFinder.searchVec2(grid, 'T');
         pathFinder.setStartAndTarget(box, target);
+        return pathFinder.findPath();
+    }
+
+    public static List<Vec2> minPath(PathFinder pathFinder, Vec2 start, Vec2 target, Vec2 box) {
+        pathFinder.setStartAndTarget(start, target);
+        pathFinder.closeSet.add(box);
         return pathFinder.findPath();
     }
 
