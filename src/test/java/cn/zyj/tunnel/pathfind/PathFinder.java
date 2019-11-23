@@ -29,6 +29,7 @@ public class PathFinder {
         this.dimVec = dimVec;
         final int dimNum = dimVec.length();
         this.unitVecList = Collections.unmodifiableList(!hasHypotenuse ? initUnitVecList(dimNum) : initUnitVecListHasHypotenuse(dimNum));
+        this.nextVecList = new ArrayList<>(unitVecList.size());
     }
 
     /**
@@ -78,6 +79,8 @@ public class PathFinder {
     private Map<Vec, Vec> parentMap;
     // 路径代价 v -> (p,h,g)
     private Map<Vec, PathCost> costMap;
+    // 当前位置
+    private List<Vec> nextVecList;
 
     // 设置起点和目标点
     public void setStartAndTarget(Vec start, Vec target) {
@@ -101,6 +104,7 @@ public class PathFinder {
         }
         // 找到代价最小的路径
         final Vec v = openSet.stream().min(Comparator.comparingInt(it -> costMap.get(it).totalCost)).orElse(null);
+        nextVecList.clear();
         openSet.remove(v);
         closeSet.add(v);
         for (Vec unitVec : unitVecList) {
@@ -124,6 +128,7 @@ public class PathFinder {
                     parentMap.put(v2, v);
                 }
             }
+            nextVecList.add(v2);
         }
         return 1;
     }
@@ -265,6 +270,10 @@ public class PathFinder {
 
     public Map<Vec, PathCost> getCostMap() {
         return costMap;
+    }
+
+    public List<Vec> getNextVecList() {
+        return nextVecList;
     }
 
     public String getName() {

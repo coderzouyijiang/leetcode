@@ -94,7 +94,6 @@ public class PathFinderTest {
                     // 不可能推
                     it.remove();
 //                    pathFinder.getCloseSet().add(v);
-                    continue;
                 } else {
                     // 能推，前提 v2和v3连通
                     playerFinder.setStartAndTarget(v2, v3);
