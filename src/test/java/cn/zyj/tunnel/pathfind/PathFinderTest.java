@@ -287,9 +287,17 @@ public class PathFinderTest {
     @Test
     public void test_minPushBox3() {
 
+        Assert.assertEquals(3, BoxPathFinder.minPathByAStar(grid1).size());
+        Assert.assertEquals(3, BoxPathFinder.minPathByAStar(grid2).size());
+        Assert.assertEquals(1, BoxPathFinder.minPathByAStar(grid3).size());
+    }
+
+    @Test
+    public void test_minPushBox4() {
+
         Assert.assertEquals(3, BoxPathFinder.minPath(grid1).size());
-        Assert.assertEquals(3, BoxPathFinder.minPath(grid2).size());
-        Assert.assertEquals(1, BoxPathFinder.minPath(grid3).size());
+        Assert.assertEquals(5, BoxPathFinder.minPath(grid1).size());
+        Assert.assertEquals(-1, BoxPathFinder.minPath(grid1).size());
     }
 
 }
