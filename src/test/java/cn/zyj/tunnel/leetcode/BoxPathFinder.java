@@ -228,6 +228,8 @@ public class BoxPathFinder {
         PathCost startCost = new PathCost(0, estimateToTarget(start, target), start);
         for (int d = DIR_TOP; d <= DIR_LEFT; d++) {
             Vec2 dir = dirArr[d];
+            Vec2 p2 = start.add(dir);
+            if (isWall(p2)) continue;
             Vec2 player2 = start.subtract(dir);
             if (isWall(player2)) continue;
 
@@ -309,6 +311,8 @@ public class BoxPathFinder {
             return null;
         }
         final List<Vec3> path = findPath(parentMap, realTarget);
+        System.out.printf("step:%s\n", path.size());
+        System.out.printf("path:%s\n", path);
         return path;
     }
 
