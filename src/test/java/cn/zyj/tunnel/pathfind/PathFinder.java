@@ -213,6 +213,7 @@ public class PathFinder {
         return lines;
     }
 
+    // 返回列表包含起点不包含终点
     public List<Vec> findPath(Map<Vec, Vec> parentMap, Vec v) {
         LinkedList<Vec> path = new LinkedList<>();
         Vec pre;
