@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 public class BoxPathFinder {
 
@@ -289,6 +291,8 @@ public class BoxPathFinder {
     public List<Vec3> findPath() {
         int result;
         for (int i = 0; (result = next()) == 1; i++) {
+            System.out.printf("%02d:\n", i);
+            System.out.println(mapToViews());
         }
         if (result != 0) {
             return null;
@@ -523,6 +527,79 @@ public class BoxPathFinder {
         final Vec2 target = BoxPathFinder.searchVec2(grid, 'T');
         boxPathFinder.setStartAndTarget(box, target, player);
         return boxPathFinder.findPath();
+    }
+
+    private void forEach(int[][] map, BiConsumer<Vec2, Integer> consumer) {
+        for (int i = 0; i < dimVec.x; i++) {
+            for (int j = 0; j < dimVec.y; j++) {
+                consumer.accept(Vec2.create(i, j), map[i][j]);
+            }
+        }
+    }
+
+    private <T> void forEach(T[][][] map, BiConsumer<Vec3, T> consumer) {
+        for (int i = 0; i < dimVec.x; i++) {
+            for (int j = 0; j < dimVec.y; j++) {
+                for (int d = DIR_TOP; d <= DIR_LEFT; d++) {
+                    if (map[i][j][d] == null) continue;
+                    consumer.accept(Vec3.create(i, j, d), map[i][j][d]);
+                }
+            }
+        }
+    }
+
+    public List<String> pathToViews(List<Vec3> path) {
+        LinkedHashMap<Vec2, String> symbolMap = new LinkedHashMap<>();
+        forEach(map, (v, val) -> symbolMap.put(v, val >= 0 ? "." : "#"));
+        symbolMap.put(start, "S");
+        symbolMap.put(target, "T");
+        path.forEach(v -> symbolMap.put(v.toVec2(), "@"));
+        return mapToView(symbolMap, 2);
+    }
+
+    public String mapToViews() {
+//            System.out.println("openSet:" + openSet);
+//            System.out.println("closeSet:" + closeSet);
+//            System.out.println("costMap:" + costMap);
+        LinkedHashMap<Vec2, String> symbolMap = new LinkedHashMap<>();
+        forEach(map, (v, val) -> symbolMap.put(v, val >= 0 ? "." : "#"));
+        openSet.forEach(v -> symbolMap.put(v.toVec2(), "O"));
+        closeSet.forEach(v -> symbolMap.put(v.toVec2(), "X"));
+        symbolMap.put(start, "S");
+        symbolMap.put(target, "T");
+
+        final List<String> view1 = mapToView(symbolMap, 2);
+
+        LinkedHashMap<Vec2, String> symbolMap2 = new LinkedHashMap<>();
+        forEach(map, (v, val) -> symbolMap2.put(v, val >= 0 ? "." : "#"));
+        symbolMap2.put(start, "S");
+        symbolMap2.put(target, "T");
+//        costMap.forEach((v, cost) -> symbolMap2.put(v, cost.totalCost + ""));
+        forEach(costMap, (v, cost) -> symbolMap2.put(v.toVec2(), cost.toStart + "+" + cost.toTarget));
+        final List<String> view2 = mapToView(symbolMap2, 5);
+
+        final Vec3 v = openSet.stream().min(Comparator.comparingInt(it -> getCost(it).totalCost)).orElse(null);
+        List<String> view0 = pathToViews(findPath(parentMap, v));
+
+        String str = "";
+        for (int i = 0; i < view1.size(); i++) {
+            str += view0.get(i) + "  |   " + view1.get(i) + "  |   " + view2.get(i) + "\n";
+        }
+        return str;
+    }
+
+    private List<String> mapToView(LinkedHashMap<Vec2, String> symbolMap, int width) {
+        List<String> lines = new ArrayList<>();
+        for (int j = 0; j < dimVec.x; j++) {
+            String line = "";
+            for (int i = 0; i < dimVec.y; i++) {
+                final Vec2 v = Vec2.create(i, j);
+                final String symbol = symbolMap.getOrDefault(v, "?");
+                line += String.format("%-" + width + "s", symbol) + " ";
+            }
+            lines.add(line);
+        }
+        return lines;
     }
 
 }
