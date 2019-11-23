@@ -239,20 +239,12 @@ public class BoxPathFinder {
             Vec3 p = start.toVec3(d);
             openSet.add(p);
             openSet2.add(start);
-            putCost(p, startCost);
+//            putCost(p, startCost);
+//            putParent(p, player2.toVec3(d));
         }
     }
 
     public int next() {
-        /*
-        for (int d = DIR_TOP; d <= DIR_LEFT; d++) {
-            Vec3 target_ = target.toVec3(d);
-            if (openSet.contains(target_)) {
-                realTarget = target_;
-                return 0; // 找到了终点
-            }
-        }
-        */
         if (openSet2.contains(target)) {
             realTarget = openSet.stream().filter(it -> it.toVec2().equals(target)).findFirst().orElse(null);
             return 0; // 找到了终点
@@ -552,7 +544,7 @@ public class BoxPathFinder {
     private void forEach(int[][] map, BiConsumer<Vec2, Integer> consumer) {
         for (int i = 0; i < dimVec.x; i++) {
             for (int j = 0; j < dimVec.y; j++) {
-                consumer.accept(Vec2.create(i, j), map[i][j]);
+                consumer.accept(Vec2.create(j, i), map[i][j]);
             }
         }
     }
@@ -562,7 +554,7 @@ public class BoxPathFinder {
             for (int j = 0; j < dimVec.y; j++) {
                 for (int d = DIR_TOP; d <= DIR_LEFT; d++) {
                     if (map[i][j][d] == null) continue;
-                    consumer.accept(Vec3.create(i, j, d), map[i][j][d]);
+                    consumer.accept(Vec3.create(j, i, d), map[i][j][d]);
                 }
             }
         }

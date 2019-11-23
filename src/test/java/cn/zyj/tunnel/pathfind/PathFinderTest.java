@@ -299,8 +299,8 @@ public class PathFinderTest {
         Assert.assertEquals(5, BoxPathFinder.minPushBox(grid2));
         Assert.assertEquals(-1, BoxPathFinder.minPushBox(grid3));
         */
-        BoxPathFinder.minPushBox(grid5);
-//        Assert.assertEquals(8, BoxPathFinder.minPushBox(grid4));
+//        BoxPathFinder.minPushBox(grid5);
+        Assert.assertEquals(8, BoxPathFinder.minPushBox(grid4));
     }
 
 }
