@@ -7,8 +7,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RunWith(JUnit4.class)
@@ -56,16 +59,27 @@ public class PathFinderTest {
     }
 
     public int minPushBox(char[][] grid) {
-        final PathFinder playerFinder = PathFinderHelper.createForPushBox(grid, false);
-        playerFinder.setName("player");
-        playerFinder.setLogLevel(0);
-
-        final PathFinder pathFinder = PathFinderHelper.createForPushBox(grid, false);
-        pathFinder.setName("box");
-        pathFinder.setLogLevel(11);
         final Vec player = searchVec(grid, 'S');
         final Vec start = searchVec(grid, 'B');
         final Vec target = searchVec(grid, 'T');
+        Set<String> history = new HashSet<>();
+        List<Vec> path = minPushBoxPath(grid, start, target, player, history);
+        return path != null ? path.size() : -1;
+    }
+
+    public List<Vec> minPushBoxPath(char[][] grid, Vec start, Vec target, Vec player, Set<String> history) {
+        String key = player + ":" + start + "->" + target;
+        System.out.println("minPushBoxPath[" + key + "]");
+        if (!history.add(key)) {
+            return null;
+        }
+        final PathFinder playerFinder = PathFinderHelper.createForPushBox(grid, false);
+        playerFinder.setName("player-" + start);
+        playerFinder.setLogLevel(0);
+
+        final PathFinder pathFinder = PathFinderHelper.createForPushBox(grid, false);
+        pathFinder.setName("box-" + start);
+        pathFinder.setLogLevel(11);
         pathFinder.setStartAndTarget(start, target);
 
         int result;
@@ -80,12 +94,14 @@ public class PathFinderTest {
                 if (v1 == null) continue;
                 final Vec dv1 = v.copy().subtract(v1);
                 final Vec v2;
+                final Vec dv2;
                 if (i > 0) {
                     v2 = pathFinder.getParentMap().get(v1);
                     if (v2 == null) continue;
-                    final Vec dv2 = v1.copy().subtract(v2);
+                    dv2 = v1.copy().subtract(v2);
                     if (dv1.equals(dv2)) continue; // 走直线不管
                 } else {
+                    dv2 = dv1.copy();
                     v2 = player;
                 }
                 final Vec v3 = v1.copy().subtract(dv1);
@@ -94,30 +110,46 @@ public class PathFinderTest {
                     // 不可能推
                     it.remove();
 //                    pathFinder.getCloseSet().add(v);
-                } else {
-                    // 能推，前提 v2和v3连通
-                    playerFinder.setStartAndTarget(v2, v3);
-                    // player从v2到v3时，箱子在v1，视为墙
-                    playerFinder.getCloseSet().add(v1);
-                    final List<Vec> path = playerFinder.findPath();
-                    if (path == null) {
-                        it.remove();
-//                        pathFinder.getCloseSet().add(v);
-//                        playerFinder.getCostMap().computeIfPresent(v, (k, cost) -> new PathCost(cost.toStart + 20, cost.toTarget, k));
-                    }
+                    continue;
                 }
+                // 能推，前提 v2和v3连通
+                playerFinder.setStartAndTarget(v2, v3);
+                // player从v2到v3时，箱子在v1，视为墙
+                playerFinder.getCloseSet().add(v1);
+                final List<Vec> playerPath = playerFinder.findPath();
+                if (playerPath == null) {
+                    it.remove();
+//                    pathFinder.getCloseSet().add(v);
+//                    playerFinder.getCostMap().computeIfPresent(v, (k, cost) -> new PathCost(cost.toStart + 20, cost.toTarget, k));
+                }
+                /*
+                // 遇到推不动的，直走。box:v->V4,player:v2->v1
+                Vec v4 = v1.copy().add(dv2);
+                if (!pathFinder.getNextVecSet().contains(v4)) {
+                    continue;
+                }
+                // 直走可行。递归计算v4->T
+                List<Vec> path2 = minPushBoxPath(grid, v4, target, v1, history);
+                if (path2 == null) {
+                    continue;
+                }
+                List<Vec> path = pathFinder.findPath(pathFinder.getParentMap(), v);
+                path.add(v4);
+                path.addAll(path2);
+                return path;
+                */
             }
             System.out.printf("%02d:\n", i);
             System.out.println(pathFinder.mapToViews());
         }
         if (result != 0) {
-            return -1;
+            return null;
         }
-        final List<Vec> path = pathFinder.findPath(pathFinder.getParentMap(), target);
-        System.out.println("step:" + path.size());
-        System.out.println("path:" + path);
+        List<Vec> path = pathFinder.findPath(pathFinder.getParentMap(), target);
+        System.out.printf("[%s]step:%s\n", pathFinder.getName(), path.size());
+        System.out.printf("[%s]path:%s\n", pathFinder.getName(), path);
         pathFinder.pathToViews(path).forEach(System.out::println);
-        return path != null ? path.size() : -1;
+        return path;
     }
 
     char[][] grid1 = {
@@ -185,12 +217,11 @@ public class PathFinderTest {
 
     @Test
     public void test_minPushBox() {
-        /*
         Assert.assertEquals(3, minPushBox(grid1));
         Assert.assertEquals(5, minPushBox(grid2));
         Assert.assertEquals(-1, minPushBox(grid3));
-        */
-        Assert.assertEquals(8, minPushBox(grid4));
+
+//        Assert.assertEquals(8, minPushBox(grid4));
     }
 
     @Test

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class PathFinder {
         this.dimVec = dimVec;
         final int dimNum = dimVec.length();
         this.unitVecList = Collections.unmodifiableList(!hasHypotenuse ? initUnitVecList(dimNum) : initUnitVecListHasHypotenuse(dimNum));
-        this.nextVecList = new ArrayList<>(unitVecList.size());
+        this.nextVecSet = new HashSet<>(unitVecList.size());
     }
 
     /**
@@ -80,7 +81,7 @@ public class PathFinder {
     // 路径代价 v -> (p,h,g)
     private Map<Vec, PathCost> costMap;
     // 当前位置
-    private List<Vec> nextVecList;
+    private Set<Vec> nextVecSet;
 
     // 设置起点和目标点
     public void setStartAndTarget(Vec start, Vec target) {
@@ -104,7 +105,7 @@ public class PathFinder {
         }
         // 找到代价最小的路径
         final Vec v = openSet.stream().min(Comparator.comparingInt(it -> costMap.get(it).totalCost)).orElse(null);
-        nextVecList.clear();
+        nextVecSet.clear();
         openSet.remove(v);
         closeSet.add(v);
         for (Vec unitVec : unitVecList) {
@@ -128,7 +129,7 @@ public class PathFinder {
                     parentMap.put(v2, v);
                 }
             }
-            nextVecList.add(v2);
+            nextVecSet.add(v2);
         }
         return 1;
     }
@@ -213,10 +214,10 @@ public class PathFinder {
     }
 
     public List<Vec> findPath(Map<Vec, Vec> parentMap, Vec v) {
-        List<Vec> path = new ArrayList<>();
+        LinkedList<Vec> path = new LinkedList<>();
         Vec pre;
         while ((pre = parentMap.get(v)) != null) {
-            path.add(v);
+            path.addFirst(v);
             v = pre;
         }
         return path;
@@ -272,8 +273,8 @@ public class PathFinder {
         return costMap;
     }
 
-    public List<Vec> getNextVecList() {
-        return nextVecList;
+    public Set<Vec> getNextVecSet() {
+        return nextVecSet;
     }
 
     public String getName() {
