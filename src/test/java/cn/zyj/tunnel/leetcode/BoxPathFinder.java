@@ -234,6 +234,7 @@ public class BoxPathFinder {
             Vec3 p = start.toVec3(d);
             openSet.add(p);
             putCost(p, startCost);
+//            putParent(p, player2.toVec3(d));
         }
     }
 
@@ -257,20 +258,25 @@ public class BoxPathFinder {
         openSet.remove(p);
         closeSet.add(p);
         // 旋转
-        for (int d = 0; d < DIR_NUM; d++) {
-            final Vec2 dir = dirArr[(d + p.d) % DIR_NUM]; // 优先正向移动
+        for (int i = 0; i < DIR_NUM; i++) {
+            int d = (i + p.d) % DIR_NUM;
+            final Vec2 dir = dirArr[d]; // 优先正向移动
 
             final Vec2 p_ = p.toVec2();
             // box: p3 --push--> p -> p2
             // player: p0 --move--> p3
             final Vec2 p2 = p_.add(dir); // 后一个点
             final Vec3 p2_ = p2.toVec3(d);
+            System.out.println(p + "->" + dir + "->" + p2_);
             if (closeSet.contains(p2_)) continue;
             if (isWall(p2)) continue;
-            final Vec2 p3 = p_.subtract(dir); // 推点
+            final Vec2 p3 = p_.subtract(dir); // 后一个推点
             if (isWall(p3)) continue;
-            final Vec2 p0 = p_.subtract(dirArr[p.d]);
-            if (!p0.equals(p3)) {
+//            final Vec2 p0 = p_.subtract(dirArr[p.d]);
+//            final Vec2 p0 = getParent(p).toVec2();
+//            Vec2 dir0 = p.toVec2().subtract(p0);
+            if (d != p.d) { // box直线运动
+                final Vec2 p0 = p_.subtract(dirArr[p.d]);
                 List<Vec2> uPath = minPathByAStar(playerPathFinder, p0, p3, p_);
                 if (uPath == null) continue;
             }
