@@ -38,7 +38,7 @@ public class Test2 {
     @Test
     public void test_minPushBox() {
         BoxPathFinder2 finder = new BoxPathFinder2();
-        finder.minPushBox(grid4);
+        System.out.println(finder.minPushBox(grid4));
     }
 
 }
