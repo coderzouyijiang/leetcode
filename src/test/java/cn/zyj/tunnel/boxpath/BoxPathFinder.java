@@ -1,4 +1,4 @@
-package cn.zyj.tunnel.leetcode;
+package cn.zyj.tunnel.boxpath;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -515,11 +515,11 @@ public class BoxPathFinder {
     }
 
     public static List<Vec2> minPathByAStar(char[][] grid) {
-        int[][] map = BoxPathFinder.createMap(grid);
+        int[][] map = createMap(grid);
         PathFinder pathFinder = new PathFinder(map);
-//        final Vec2 player = BoxPathFinder.searchVec2(grid, 'S');
-        final Vec2 box = BoxPathFinder.searchVec2(grid, 'B');
-        final Vec2 target = BoxPathFinder.searchVec2(grid, 'T');
+//        final Vec2 player = searchVec2(grid, 'S');
+        final Vec2 box = searchVec2(grid, 'B');
+        final Vec2 target = searchVec2(grid, 'T');
         pathFinder.setStartAndTarget(box, target);
         return pathFinder.findPath();
     }
@@ -532,9 +532,9 @@ public class BoxPathFinder {
 
     public List<Vec3> minPath(char[][] grid) {
         setMap(grid);
-        final Vec2 player = BoxPathFinder.searchVec2(grid, 'S');
-        final Vec2 box = BoxPathFinder.searchVec2(grid, 'B');
-        final Vec2 target = BoxPathFinder.searchVec2(grid, 'T');
+        final Vec2 player = searchVec2(grid, 'S');
+        final Vec2 box = searchVec2(grid, 'B');
+        final Vec2 target = searchVec2(grid, 'T');
         setStartAndTarget(box, target, player);
         return findPath();
     }

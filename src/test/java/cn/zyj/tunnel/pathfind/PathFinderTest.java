@@ -1,6 +1,6 @@
 package cn.zyj.tunnel.pathfind;
 
-import cn.zyj.tunnel.leetcode.BoxPathFinder;
+import cn.zyj.tunnel.boxpath.BoxPathFinder;
 import cn.zyj.tunnel.leetcode.PushBox;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -9,15 +9,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
 
 @Slf4j
 @RunWith(JUnit4.class)
