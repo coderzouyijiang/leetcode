@@ -3,6 +3,7 @@ package cn.zyj.tunnel.boxpath;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -64,61 +65,77 @@ public class BoxPathFinder2 {
                 int sy2 = curState[by];
 
                 int[] nextState = {bx2, by2, sx2, sy2};
-                System.out.printf("nextState:%s\n", Arrays.toString(nextState));
+                System.out.printf("nextState:%s", Arrays.toString(nextState));
                 if (oldStateSet.contains(nextState)) {
+                    System.out.printf(",%s\n", "1-已经处理过的状态");
                     continue; // 已经处理过的状态，跳过
                 }
                 if (isWall(grid, bx2, by2)) {
+                    System.out.printf(",%s\n", "2-移动后位置不可达");
                     continue; // 移动后位置不可达
                 }
                 int sx1 = curState[bx] - dx[i];
                 int sy1 = curState[by] - dy[i];
                 if (isWall(grid, sx1, sy1)) {
+                    System.out.printf(",%s\n", "3-移动前后方位置不可达");
                     continue; // 移动前后方位置不可达
                 }
                 // 检查连通性,箱子不可通过
-                char oldChar = grid[sx2][sy2];
-                grid[sx2][sy2] = '#';
-                boolean isConnect = isConnect(grid, curState[sx], curState[sy], sx1, sy1);
-                grid[sx2][sy2] = oldChar;
-                if (!isConnect) {
+
+                if (!isConnect(grid, curState[sx], curState[sy], sx1, sy1, sx2, sx2)) {
+                    System.out.printf(",%s:(%s,%s)->(%s,%s)\n", "4-不可连通", curState[sx], curState[sy], sx1, sy1);
                     continue;
                 }
                 nextState = Arrays.copyOf(nextState, 6);
                 nextState[step] = curState[step] + 1;   // 路径+1
                 nextState[dist] = Math.abs(tx - bx2) + Math.abs(ty - by2); // 后续路径估计
-                System.out.printf("join stateQueue:%s\n", Arrays.toString(nextState));
+                System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
+                stateQueue.offer(nextState);
             }
         }
         return -1;
     }
 
-    private boolean isConnect(char[][] grid, int sx0, int sy0, int sx1, int sy1) {
-        return isConnect(grid, sx0, sy0, sx1, sy1, new HashSet<>());
+    // BFS
+    public static boolean isConnect(char[][] grid, int sx0, int sy0, int sx1, int sy1, int sx2, int sy2) {
+        char oldChar = grid[sx2][sy2];
+        grid[sx2][sy2] = '#';
+        boolean isConnect = isConnect(grid, sx0, sy0, sx1, sy1);
+        grid[sx2][sy2] = oldChar;
+        return isConnect;
     }
 
-    private boolean isConnect(char[][] grid, int sx0, int sy0, int sx1, int sy1, Set<int[]> oldPosSet) {
+    // BFS
+    public static boolean isConnect(char[][] grid, int sx0, int sy0, int sx1, int sy1) {
         if (sx0 == sx1 && sy0 == sy1) {
             return true;
         }
-        oldPosSet.add(new int[]{sx1, sy1});
-        for (int i = 0; i < 4; i++) {
-            int sx2 = sx1 + dx[i];
-            int sy2 = sy1 + dy[i];
-            if (oldPosSet.contains(new int[]{sx2, sy2})) {
-                continue;
-            }
-            if (isWall(grid, sx2, sy2)) {
-                continue;
-            }
-            if (isConnect(grid, sx0, sy0, sx2, sy2, oldPosSet)) {
+        LinkedList<int[]> newPosSet = new LinkedList<>();
+        newPosSet.add(new int[]{sx1, sy1});
+
+        Set<int[]> oldPosSet = new HashSet<>();
+        int[] pos;
+        while ((pos = newPosSet.poll()) != null) {
+            oldPosSet.add(pos);
+            if (sx0 == pos[0] && sy0 == pos[1]) {
                 return true;
+            }
+            for (int i = 0; i < 4; i++) {
+                int sx2 = pos[0] + dx[i];
+                int sy2 = pos[1] + dy[i];
+                if (oldPosSet.contains(new int[]{sx2, sy2})) {
+                    continue;
+                }
+                if (isWall(grid, sx2, sy2)) {
+                    continue;
+                }
+                newPosSet.offer(new int[]{sx2, sy2});
             }
         }
         return false;
     }
 
-    private boolean isWall(char[][] grid, int x, int y) {
+    public static boolean isWall(char[][] grid, int x, int y) {
         if (x < 0 || x >= grid.length || y < 0 || y >= grid[0].length) {
             return true;
         }

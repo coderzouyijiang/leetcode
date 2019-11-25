@@ -41,4 +41,16 @@ public class Test2 {
         System.out.println(finder.minPushBox(grid4));
     }
 
+    @Test
+    public void test_isConnect() {
+        boolean connect = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 6);
+        System.out.println(connect);
+
+        char ch = grid4[3][5];
+        grid4[3][5] = '#';
+        boolean connect2 = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 1, 3, 5);
+        System.out.println(connect2);
+        grid4[3][5] = ch;
+    }
+
 }
