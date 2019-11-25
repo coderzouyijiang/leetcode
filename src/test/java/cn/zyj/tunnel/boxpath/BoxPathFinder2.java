@@ -17,18 +17,25 @@ public class BoxPathFinder2 {
     private static final char WALL = '#';
 
     // 状态数组:0,1:box坐标；2,3:人的坐标；4:已走过步数；5:当前距离终点的估计距离
-    private static final int bx = 0, by = 1, sx = 2, sy = 3, step = 4, dist = 5;
+    private static final int bx = 0, by = 1, sx = 2, sy = 3, step = 4, dist = 5, id = 6, pid = 7;
+    private static final int stateNum = 8;
     // 下一步的方向
     private static final int[] dx = {0, 1, 0, -1}; // top,right,down,left
     private static final int[] dy = {1, 0, -1, 0};
+    private static final int dirNum = 4;
 
     public static final Comparator<int[]> stateComparator = Comparator.comparingInt(state -> state[step] + state[dist]);
 
     public int minPushBox(char[][] grid) {
+        List<int[]> path = minPushBoxPath(grid);
+        return path != null ? (path.size() - 1) : -1;
+    }
+
+    public List<int[]> minPushBoxPath(char[][] grid) {
         int m = grid.length;
         int n = grid[0].length;
 
-        final int[] startState = new int[6];
+        final int[] startState = new int[stateNum];
         int tx = -1, ty = -1; // 终点坐标
 
         for (int i = 0; i < m; i++) {
@@ -42,16 +49,20 @@ public class BoxPathFinder2 {
                     startState[by] = j;
                     startState[step] = 0;
                     startState[dist] = Math.abs(tx - i) + Math.abs(ty - j);
+                    startState[id] = 0;
+                    startState[pid] = -1;
                 } else if (ch == 'T') {
                     tx = i;
                     ty = j;
                 }
             }
         }
+        List<int[]> states = new ArrayList<>();
         System.out.printf("startState:%s,target:(%s,%s)\n", Arrays.toString(startState), tx, ty);
         // 优先队列，每次从中获取【步数+预估剩余步数】最少的状态
         PriorityQueue<int[]> stateQueue = new PriorityQueue(stateComparator);
         stateQueue.add(startState);
+        states.add(startState);
         // 已经经过的状态值,只包含bx,by,sx,sy
 //        Set<int[]> oldStateSet = new HashSet<>();
         Set<Integer> oldStateSet = new HashSet<>();
@@ -61,20 +72,27 @@ public class BoxPathFinder2 {
         int[] curState;
         while ((curState = stateQueue.poll()) != null) {
             if (curState[bx] == tx && curState[by] == ty) {
-                return curState[step];
+//                return curState[step];
+                return getPath(states, curState);
             }
 //            oldStateSet.add(Arrays.copyOfRange(curState, 0, 4));
             oldStateSet.add(computeStateHash(curState));
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < dirNum; i++) {
                 int bx2 = curState[bx] + dx[i];   // 箱子新坐标
                 int by2 = curState[by] + dy[i];
                 int sx2 = curState[bx];   // 人新坐标,也是箱子当前位置
                 int sy2 = curState[by];
 
-                int[] nextState = {bx2, by2, sx2, sy2, -1, -1};
+                int[] nextState = new int[stateNum];
+                nextState[bx] = bx2;
+                nextState[by] = by2;
+                nextState[sx] = sx2;
+                nextState[sy] = sy2;
                 nextState[step] = curState[step] + 1;   // 路径+1
                 nextState[dist] = Math.abs(tx - bx2) + Math.abs(ty - by2); // 后续路径估计
+                nextState[id] = states.size();
+                nextState[pid] = curState[id];
 
                 System.out.printf("[%04d]nextState:%s", ++index, Arrays.toString(nextState));
                 if (oldStateSet.contains(computeStateHash(nextState))) {
@@ -99,9 +117,21 @@ public class BoxPathFinder2 {
                 System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
                 oldStateSetToStr(grid, oldStateSet, nextState);
                 stateQueue.offer(nextState);
+                states.add(startState);
             }
         }
-        return -1;
+        return null;
+    }
+
+    public static List<int[]> getPath(List<int[]> states, int[] curState) {
+        List<int[]> path = new ArrayList<>(curState[step] + 1);
+        path.add(curState);
+        int id;
+        while ((id = curState[pid]) != -1) {
+            curState = states.get(id);
+            path.add(curState);
+        }
+        return path;
     }
 
     public static void oldStateSetToStr(char[][] grid, Set<Integer> oldStateSet, int[] nextState) {
@@ -178,7 +208,7 @@ public class BoxPathFinder2 {
                 return true;
             }
 //            System.out.println(Arrays.toString(pos) + "->(" + sx0 + "," + sy0 + ")");
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < dirNum; i++) {
                 int sx2 = sx1 + dx[i];
                 int sy2 = sy1 + dy[i];
                 if (isWall(grid, sx2, sy2)) {
