@@ -61,7 +61,7 @@ public class BoxPathFinder2 {
         int[] curState;
         while ((curState = stateQueue.poll()) != null) {
             if (curState[bx] == tx && curState[by] == ty) {
-                return step;
+                return curState[step];
             }
 //            oldStateSet.add(Arrays.copyOfRange(curState, 0, 4));
             oldStateSet.add(computeStateHash(curState));
@@ -92,7 +92,7 @@ public class BoxPathFinder2 {
                     continue; // 移动前后方位置不可达
                 }
                 // 检查连通性,箱子不可通过
-                if (!isConnect(grid, curState[sx], curState[sy], sx1, sy1, sx2, sx2)) {
+                if (!isConnect(grid, curState[sx], curState[sy], sx1, sy1, sx2, sy2)) {
                     System.out.printf(",%s:(%s,%s)->(%s,%s)\n", "4-不可连通", curState[sx], curState[sy], sx1, sy1);
                     continue;
                 }
@@ -124,7 +124,7 @@ public class BoxPathFinder2 {
         nextPassed[nextState[sx]][nextState[sy]] = 'S';
         List<String> lines3 = passedToStr(grid, nextPassed);
         for (int i = 0; i < grid.length; i++) {
-            System.out.println(lines1.get(i) + "    " + lines2.get(i) + "    " + lines3.get(i));
+            System.out.println(lines3.get(i) + "    " + lines1.get(i) + "    " + lines2.get(i));
         }
         System.out.println();
     }
@@ -136,6 +136,13 @@ public class BoxPathFinder2 {
 
     // BFS
     public static boolean isConnect(char[][] grid, int sx0, int sy0, int sx1, int sy1, int sx2, int sy2) {
+
+        char[][] grid2 = createGrid(grid);
+        grid2[sx0][sy0] = 's';
+        grid2[sx1][sy1] = 'S';
+        grid2[sx2][sy2] = 'B';
+        System.out.println("\n" + String.join("\n", passedToStr(grid, grid2)));
+
         char oldChar = grid[sx2][sy2];
         grid[sx2][sy2] = '#';
         boolean isConnect = isConnect(grid, sx0, sy0, sx1, sy1);
