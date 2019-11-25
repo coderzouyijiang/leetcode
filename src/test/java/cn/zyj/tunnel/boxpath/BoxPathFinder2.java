@@ -1,15 +1,13 @@
 package cn.zyj.tunnel.boxpath;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.function.IntUnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class BoxPathFinder2 {
 
@@ -30,7 +28,7 @@ public class BoxPathFinder2 {
         int m = grid.length;
         int n = grid[0].length;
 
-        final int[] startState = {-1, -1, -1, -1, 0, 0};
+        final int[] startState = new int[6];
         int tx = -1, ty = -1; // 终点坐标
 
         for (int i = 0; i < m; i++) {
@@ -42,6 +40,8 @@ public class BoxPathFinder2 {
                 } else if (ch == 'B') {
                     startState[bx] = i;
                     startState[by] = j;
+                    startState[step] = 0;
+                    startState[dist] = Math.abs(tx - i) + Math.abs(ty - j);
                 } else if (ch == 'T') {
                     tx = i;
                     ty = j;
@@ -73,7 +73,7 @@ public class BoxPathFinder2 {
                 int[] nextState = {bx2, by2, sx2, sy2, -1, -1};
                 nextState[step] = curState[step] + 1;   // 路径+1
                 nextState[dist] = Math.abs(tx - bx2) + Math.abs(ty - by2); // 后续路径估计
-                
+
                 System.out.printf("nextState:%s", Arrays.toString(nextState));
                 if (oldStateSet.contains(computeStateHash(nextState))) {
                     System.out.printf(",%s\n", "1-已经处理过的状态");
@@ -96,9 +96,30 @@ public class BoxPathFinder2 {
                 }
                 System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
                 stateQueue.offer(nextState);
+                oldStateSetToStr(grid, oldStateSet);
             }
         }
         return -1;
+    }
+
+    public static void oldStateSetToStr(char[][] grid, Set<Integer> oldStateSet) {
+        char[][] boxPassed = createGrid(grid);
+        char[][] playerPassed = createGrid(grid);
+        for (Integer code : oldStateSet) {
+            int bx1 = code & 0xFF;
+            int by1 = (code >> 8) & 0xFF;
+            int sx1 = (code >> 16) & 0xFF;
+            int sy1 = (code >> 24) & 0xFF;
+
+            boxPassed[bx1][by1] = '1';
+            playerPassed[sx1][sy1] = '1';
+        }
+        List<String> lines1 = passedToStr(grid, boxPassed);
+        List<String> lines2 = passedToStr(grid, playerPassed);
+        for (int i = 0; i < grid.length; i++) {
+            System.out.println(lines1.get(i) + "    " + lines2.get(i));
+        }
+        System.out.println();
     }
 
     public static int computeStateHash(int[] curState) {
@@ -115,6 +136,14 @@ public class BoxPathFinder2 {
         return isConnect;
     }
 
+    public static char[][] createGrid(char[][] grid) {
+        char[][] passed = new char[grid.length][];
+        for (int i = 0; i < grid.length; i++) {
+            passed[i] = new char[grid[i].length];
+        }
+        return passed;
+    }
+
     // BFS
     public static boolean isConnect(char[][] grid, int sx0, int sy0, int sx1, int sy1) {
         if (sx0 == sx1 && sy0 == sy1) {
@@ -123,10 +152,7 @@ public class BoxPathFinder2 {
         LinkedList<int[]> newPosQueue = new LinkedList<>();
         newPosQueue.offer(new int[]{sx1, sy1});
 
-        char[][] passed = new char[grid.length][];
-        for (int i = 0; i < grid.length; i++) {
-            passed[i] = new char[grid[i].length];
-        }
+        char[][] passed = createGrid(grid);
         int[] pos;
         while ((pos = newPosQueue.poll()) != null) {
             sx1 = pos[0];
@@ -157,9 +183,10 @@ public class BoxPathFinder2 {
         return false;
     }
 
-    public static String passedToStr(char[][] grid, char[][] passed) {
-        String str = "";
+    public static List<String> passedToStr(char[][] grid, char[][] passed) {
+        List<String> lines = new ArrayList<>(grid.length);
         for (int i = 0; i < grid.length; i++) {
+            String str = "";
             char[] line = grid[i];
             for (int j = 0; j < line.length; j++) {
                 if (line[j] == '#') {
@@ -169,9 +196,9 @@ public class BoxPathFinder2 {
                 }
                 str += " ";
             }
-            str += '\n';
+            lines.add(str);
         }
-        return str;
+        return lines;
         /*
         int width = grid[0].length;
         return IntStream.of(passed).mapToObj(Integer::toBinaryString)
