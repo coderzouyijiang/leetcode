@@ -6,6 +6,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -40,7 +41,8 @@ public class Test2 {
     @Test
     public void test_minPushBox() {
         BoxPathFinder2 finder = new BoxPathFinder2();
-        System.out.println(finder.minPushBoxPath(grid4));
+        List<int[]> path = finder.minPushBoxPath(grid4);
+        BoxPathFinder2.printPath(grid4, path);
     }
 
     @Test

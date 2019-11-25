@@ -2,6 +2,7 @@ package cn.zyj.tunnel.boxpath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -49,7 +50,6 @@ public class BoxPathFinder2 {
                     startState[by] = j;
                     startState[step] = 0;
                     startState[dist] = Math.abs(tx - i) + Math.abs(ty - j);
-                    startState[id] = 0;
                     startState[pid] = -1;
                 } else if (ch == 'T') {
                     tx = i;
@@ -62,6 +62,7 @@ public class BoxPathFinder2 {
         // 优先队列，每次从中获取【步数+预估剩余步数】最少的状态
         PriorityQueue<int[]> stateQueue = new PriorityQueue(stateComparator);
         stateQueue.add(startState);
+        startState[id] = states.size();
         states.add(startState);
         // 已经经过的状态值,只包含bx,by,sx,sy
 //        Set<int[]> oldStateSet = new HashSet<>();
@@ -117,19 +118,19 @@ public class BoxPathFinder2 {
                 System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
                 oldStateSetToStr(grid, oldStateSet, nextState);
                 stateQueue.offer(nextState);
-                states.add(startState);
+                states.add(nextState);
             }
         }
         return null;
     }
 
     public static List<int[]> getPath(List<int[]> states, int[] curState) {
-        List<int[]> path = new ArrayList<>(curState[step] + 1);
+        List<int[]> path = new LinkedList<>();
         path.add(curState);
         int id;
         while ((id = curState[pid]) != -1) {
             curState = states.get(id);
-            path.add(curState);
+            path.add(0, curState);
         }
         return path;
     }
@@ -157,6 +158,14 @@ public class BoxPathFinder2 {
             System.out.println(lines3.get(i) + "    " + lines1.get(i) + "    " + lines2.get(i));
         }
         System.out.println();
+    }
+
+    public static void printPath(char[][] grid, List<int[]> states) {
+        System.out.println("path:");
+        for (int[] state : states) {
+            System.out.printf("[%03d]path:%s\n", state[step], Arrays.toString(state));
+            oldStateSetToStr(grid, Collections.EMPTY_SET, state);
+        }
     }
 
     public static int computeStateHash(int[] curState) {
