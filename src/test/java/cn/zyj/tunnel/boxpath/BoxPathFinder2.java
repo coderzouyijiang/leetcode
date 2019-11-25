@@ -116,13 +116,17 @@ public class BoxPathFinder2 {
         LinkedList<int[]> newPosQueue = new LinkedList<>();
         newPosQueue.offer(new int[]{sx1, sy1});
 
-        int[] passed = new int[grid.length];
+        char[][] passed = new char[grid.length][];
+        for (int i = 0; i < grid.length; i++) {
+            passed[i] = new char[grid[i].length];
+        }
         int[] pos;
         while ((pos = newPosQueue.poll()) != null) {
             sx1 = pos[0];
             sy1 = pos[1];
 //            oldPosSet.add(pos);
-            passed[sx1] |= (1 << sy1);
+//            passed[sx1] |= (1 << sy1);
+            passed[sx1][sy1] = '1';
             if (sx0 == sx1 && sy0 == sy1) {
                 return true;
             }
@@ -134,22 +138,39 @@ public class BoxPathFinder2 {
                     continue;
                 }
 //                if (oldPosSet.contains(new int[]{sx2, sy2})) {
-                if ((passed[sx2] | (1 << sy2)) == 1) {
+//                if ((passed[sx2] >> sy2 & (1 << sy2)) > 0) {
+                if (passed[sx2][sy2] == '1') {
                     continue;
                 }
+                passed[sx2][sy2] = '0';
                 newPosQueue.offer(new int[]{sx2, sy2});
-//                System.out.println("newPos:(" + sx2 + "," + sy2 + ")");
             }
-            System.out.println(passedToStr(passed, grid[0].length) + "\n");
-//            System.out.println(newPosSet.stream().map(Arrays::toString).collect(Collectors.joining(",")));
+            System.out.println(passedToStr(grid, passed) + "\n");
         }
         return false;
     }
 
-    public static String passedToStr(int[] passed, int width) {
+    public static String passedToStr(char[][] grid, char[][] passed) {
+        String str = "";
+        for (int i = 0; i < grid.length; i++) {
+            char[] line = grid[i];
+            for (int j = 0; j < line.length; j++) {
+                if (line[j] == '#') {
+                    str += '#';
+                } else {
+                    str += passed[i][j] != 0 ? passed[i][j] : line[j];
+                }
+                str += " ";
+            }
+            str += '\n';
+        }
+        return str;
+        /*
+        int width = grid[0].length;
         return IntStream.of(passed).mapToObj(Integer::toBinaryString)
                 .map(it -> String.format("%" + width + "s", it).replaceAll(" ", "0"))
                 .collect(Collectors.joining("\n"));
+        */
     }
 
     public static boolean isWall(char[][] grid, int x, int y) {
