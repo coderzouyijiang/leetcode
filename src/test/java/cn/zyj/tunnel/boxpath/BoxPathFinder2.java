@@ -53,14 +53,16 @@ public class BoxPathFinder2 {
         PriorityQueue<int[]> stateQueue = new PriorityQueue(stateComparator);
         stateQueue.add(startState);
         // 已经经过的状态值,只包含bx,by,sx,sy
-        Set<int[]> oldStateSet = new HashSet<>();
+//        Set<int[]> oldStateSet = new HashSet<>();
+        Set<Integer> oldStateSet = new HashSet<>();
 
         int[] curState;
         while ((curState = stateQueue.poll()) != null) {
             if (curState[bx] == tx && curState[by] == ty) {
                 return step;
             }
-            oldStateSet.add(Arrays.copyOfRange(curState, 0, 4));
+//            oldStateSet.add(Arrays.copyOfRange(curState, 0, 4));
+            oldStateSet.add(computeStateHash(curState));
 
             for (int i = 0; i < 4; i++) {
                 int bx2 = curState[bx] + dx[i];   // 箱子新坐标
@@ -68,9 +70,9 @@ public class BoxPathFinder2 {
                 int sx2 = curState[bx];   // 人新坐标,也是箱子当前位置
                 int sy2 = curState[by];
 
-                int[] nextState = {bx2, by2, sx2, sy2};
+                int[] nextState = {bx2, by2, sx2, sy2, -1, -1};
                 System.out.printf("nextState:%s", Arrays.toString(nextState));
-                if (oldStateSet.contains(nextState)) {
+                if (oldStateSet.contains(computeStateHash(nextState))) {
                     System.out.printf(",%s\n", "1-已经处理过的状态");
                     continue; // 已经处理过的状态，跳过
                 }
@@ -89,7 +91,6 @@ public class BoxPathFinder2 {
                     System.out.printf(",%s:(%s,%s)->(%s,%s)\n", "4-不可连通", curState[sx], curState[sy], sx1, sy1);
                     continue;
                 }
-                nextState = Arrays.copyOf(nextState, 6);
                 nextState[step] = curState[step] + 1;   // 路径+1
                 nextState[dist] = Math.abs(tx - bx2) + Math.abs(ty - by2); // 后续路径估计
                 System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
@@ -97,6 +98,10 @@ public class BoxPathFinder2 {
             }
         }
         return -1;
+    }
+
+    public static int computeStateHash(int[] curState) {
+        return curState[bx] & (curState[by] << 8) & (curState[sx] << 16) & (curState[sy] << 24);
     }
 
     // BFS
@@ -145,7 +150,7 @@ public class BoxPathFinder2 {
                 passed[sx2][sy2] = '0';
                 newPosQueue.offer(new int[]{sx2, sy2});
             }
-            System.out.println(passedToStr(grid, passed) + "\n");
+//            System.out.println(passedToStr(grid, passed) + "\n");
         }
         return false;
     }

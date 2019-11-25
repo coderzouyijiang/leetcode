@@ -45,8 +45,8 @@ public class Test2 {
 
     @Test
     public void test_isConnect() {
-//        boolean connect = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 6);
-//        System.out.println(connect);
+        boolean connect = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 6);
+        System.out.println(connect);
 
         char ch = grid4[3][5];
         grid4[3][5] = '#';
