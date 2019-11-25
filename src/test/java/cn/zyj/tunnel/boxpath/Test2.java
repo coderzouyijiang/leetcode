@@ -45,14 +45,11 @@ public class Test2 {
 
     @Test
     public void test_isConnect() {
-        boolean connect = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 6);
-        System.out.println(connect);
+//        boolean connect = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 6);
+//        System.out.println(connect);
 
-        char ch = grid4[3][5];
-        grid4[3][5] = '#';
-        boolean connect2 = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 1, 3, 5);
+        boolean connect2 = BoxPathFinder2.isConnect(grid4, 3, 4, 2, 4, 5, 3);
         System.out.println(connect2);
-        grid4[3][5] = ch;
 
         System.out.println(BoxPathFinder2.computeStateHash(new int[]{1, 2, 3, 4}));
         System.out.println(BoxPathFinder2.computeStateHash(new int[]{1, 2, 3, 5}));

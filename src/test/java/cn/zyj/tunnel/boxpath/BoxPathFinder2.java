@@ -55,7 +55,9 @@ public class BoxPathFinder2 {
         // 已经经过的状态值,只包含bx,by,sx,sy
 //        Set<int[]> oldStateSet = new HashSet<>();
         Set<Integer> oldStateSet = new HashSet<>();
+        oldStateSetToStr(grid, oldStateSet, startState);
 
+        int index = 0;
         int[] curState;
         while ((curState = stateQueue.poll()) != null) {
             if (curState[bx] == tx && curState[by] == ty) {
@@ -74,7 +76,7 @@ public class BoxPathFinder2 {
                 nextState[step] = curState[step] + 1;   // 路径+1
                 nextState[dist] = Math.abs(tx - bx2) + Math.abs(ty - by2); // 后续路径估计
 
-                System.out.printf("nextState:%s", Arrays.toString(nextState));
+                System.out.printf("[%04d]nextState:%s", ++index, Arrays.toString(nextState));
                 if (oldStateSet.contains(computeStateHash(nextState))) {
                     System.out.printf(",%s\n", "1-已经处理过的状态");
                     continue; // 已经处理过的状态，跳过
@@ -95,14 +97,14 @@ public class BoxPathFinder2 {
                     continue;
                 }
                 System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
+                oldStateSetToStr(grid, oldStateSet, nextState);
                 stateQueue.offer(nextState);
-                oldStateSetToStr(grid, oldStateSet);
             }
         }
         return -1;
     }
 
-    public static void oldStateSetToStr(char[][] grid, Set<Integer> oldStateSet) {
+    public static void oldStateSetToStr(char[][] grid, Set<Integer> oldStateSet, int[] nextState) {
         char[][] boxPassed = createGrid(grid);
         char[][] playerPassed = createGrid(grid);
         for (Integer code : oldStateSet) {
@@ -116,8 +118,13 @@ public class BoxPathFinder2 {
         }
         List<String> lines1 = passedToStr(grid, boxPassed);
         List<String> lines2 = passedToStr(grid, playerPassed);
+
+        char[][] nextPassed = createGrid(grid);
+        nextPassed[nextState[bx]][nextState[by]] = 'B';
+        nextPassed[nextState[sx]][nextState[sy]] = 'S';
+        List<String> lines3 = passedToStr(grid, nextPassed);
         for (int i = 0; i < grid.length; i++) {
-            System.out.println(lines1.get(i) + "    " + lines2.get(i));
+            System.out.println(lines1.get(i) + "    " + lines2.get(i) + "    " + lines3.get(i));
         }
         System.out.println();
     }
@@ -178,7 +185,7 @@ public class BoxPathFinder2 {
                 passed[sx2][sy2] = '0';
                 newPosQueue.offer(new int[]{sx2, sy2});
             }
-//            System.out.println(passedToStr(grid, passed) + "\n");
+//            System.out.println("\n" + String.join("\n", passedToStr(grid, passed)));
         }
         return false;
     }
@@ -192,7 +199,7 @@ public class BoxPathFinder2 {
                 if (line[j] == '#') {
                     str += '#';
                 } else {
-                    str += passed[i][j] != 0 ? passed[i][j] : line[j];
+                    str += passed[i][j] != 0 ? passed[i][j] : '.';
                 }
                 str += " ";
             }
