@@ -16,6 +16,7 @@ public class BoxPathFinder2 {
     private static final char BOX = 'B';
     private static final char TARGET = 'T';
     private static final char WALL = '#';
+    private static final char VOID = '.';
 
     // 状态数组:0,1:box坐标；2,3:人的坐标；4:已走过步数；5:当前距离终点的估计距离
     private static final int bx = 0, by = 1, sx = 2, sy = 3, step = 4, dist = 5, id = 6, pid = 7;
@@ -44,16 +45,16 @@ public class BoxPathFinder2 {
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 char ch = grid[i][j];
-                if (ch == 'S') {
+                if (ch == PLAYER) {
                     startState[sx] = i;
                     startState[sy] = j;
-                } else if (ch == 'B') {
+                } else if (ch == BOX) {
                     startState[bx] = i;
                     startState[by] = j;
                     startState[step] = 0;
                     startState[dist] = Math.abs(tx - i) + Math.abs(ty - j);
                     startState[pid] = -1;
-                } else if (ch == 'T') {
+                } else if (ch == TARGET) {
                     tx = i;
                     ty = j;
                 }
@@ -185,7 +186,7 @@ public class BoxPathFinder2 {
         System.out.println("\n" + String.join("\n", passedToStr(grid, grid2)));
 */
         char oldChar = grid[sx2][sy2];
-        grid[sx2][sy2] = '#';
+        grid[sx2][sy2] = WALL;
         boolean isConnect = isConnect(grid, sx0, sy0, sx1, sy1);
         grid[sx2][sy2] = oldChar;
         return isConnect;
@@ -244,10 +245,10 @@ public class BoxPathFinder2 {
             String str = "";
             char[] line = grid[i];
             for (int j = 0; j < line.length; j++) {
-                if (line[j] == '#') {
-                    str += '#';
+                if (line[j] == WALL) {
+                    str += WALL;
                 } else {
-                    str += passed[i][j] != 0 ? passed[i][j] : '.';
+                    str += passed[i][j] != 0 ? passed[i][j] : VOID;
                 }
                 str += " ";
             }
@@ -266,7 +267,7 @@ public class BoxPathFinder2 {
         if (x < 0 || x >= grid.length || y < 0 || y >= grid[0].length) {
             return true;
         }
-        return grid[x][y] == '#';
+        return grid[x][y] == WALL;
     }
 
 
