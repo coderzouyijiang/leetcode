@@ -29,7 +29,9 @@ public class BoxPathFinder2 {
 
     public int minPushBox(char[][] grid) {
         List<int[]> path = minPushBoxPath(grid);
-        return path != null ? (path.size() - 1) : -1;
+        if (path == null) return -1;
+        printPath(grid, path);
+        return path.get(path.size() - 1)[step];
     }
 
     public List<int[]> minPushBoxPath(char[][] grid) {
@@ -67,7 +69,7 @@ public class BoxPathFinder2 {
         // 已经经过的状态值,只包含bx,by,sx,sy
 //        Set<int[]> oldStateSet = new HashSet<>();
         Set<Integer> oldStateSet = new HashSet<>();
-        oldStateSetToStr(grid, oldStateSet, startState);
+//        oldStateSetToStr(grid, oldStateSet, startState);
 
         int index = 0;
         int[] curState;
@@ -95,28 +97,28 @@ public class BoxPathFinder2 {
                 nextState[id] = states.size();
                 nextState[pid] = curState[id];
 
-                System.out.printf("[%04d]nextState:%s", ++index, Arrays.toString(nextState));
+//                System.out.printf("[%04d]nextState:%s", ++index, Arrays.toString(nextState));
                 if (oldStateSet.contains(computeStateHash(nextState))) {
-                    System.out.printf(",%s\n", "1-已经处理过的状态");
+//                    System.out.printf(",%s\n", "1-已经处理过的状态");
                     continue; // 已经处理过的状态，跳过
                 }
                 if (isWall(grid, bx2, by2)) {
-                    System.out.printf(",%s\n", "2-移动后位置不可达");
+//                    System.out.printf(",%s\n", "2-移动后位置不可达");
                     continue; // 移动后位置不可达
                 }
                 int sx1 = curState[bx] - dx[i];
                 int sy1 = curState[by] - dy[i];
                 if (isWall(grid, sx1, sy1)) {
-                    System.out.printf(",%s\n", "3-移动前后方位置不可达");
+//                    System.out.printf(",%s\n", "3-移动前后方位置不可达");
                     continue; // 移动前后方位置不可达
                 }
                 // 检查连通性,箱子不可通过
                 if (!isConnect(grid, curState[sx], curState[sy], sx1, sy1, sx2, sy2)) {
-                    System.out.printf(",%s:(%s,%s)->(%s,%s)\n", "4-不可连通", curState[sx], curState[sy], sx1, sy1);
+//                    System.out.printf(",%s:(%s,%s)->(%s,%s)\n", "4-不可连通", curState[sx], curState[sy], sx1, sy1);
                     continue;
                 }
-                System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
-                oldStateSetToStr(grid, oldStateSet, nextState);
+//                System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
+//                oldStateSetToStr(grid, oldStateSet, nextState);
                 stateQueue.offer(nextState);
                 states.add(nextState);
             }
@@ -175,13 +177,13 @@ public class BoxPathFinder2 {
 
     // BFS
     public static boolean isConnect(char[][] grid, int sx0, int sy0, int sx1, int sy1, int sx2, int sy2) {
-
+/*
         char[][] grid2 = createGrid(grid);
         grid2[sx0][sy0] = 's';
         grid2[sx1][sy1] = 'S';
         grid2[sx2][sy2] = 'B';
         System.out.println("\n" + String.join("\n", passedToStr(grid, grid2)));
-
+*/
         char oldChar = grid[sx2][sy2];
         grid[sx2][sy2] = '#';
         boolean isConnect = isConnect(grid, sx0, sy0, sx1, sy1);
