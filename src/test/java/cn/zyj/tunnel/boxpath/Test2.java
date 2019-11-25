@@ -5,7 +5,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 @RunWith(JUnit4.class)
 public class Test2 {
@@ -43,14 +45,25 @@ public class Test2 {
 
     @Test
     public void test_isConnect() {
-        boolean connect = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 6);
-        System.out.println(connect);
+//        boolean connect = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 6);
+//        System.out.println(connect);
 
         char ch = grid4[3][5];
         grid4[3][5] = '#';
         boolean connect2 = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 1, 3, 5);
         System.out.println(connect2);
         grid4[3][5] = ch;
+    }
+
+    @Test
+    public void test_set() {
+        Set<int[]> set = new HashSet<>();
+        System.out.println(set.add(new int[]{1, 2}));
+        System.out.println(set.add(new int[]{3, 4}));
+        System.out.println(set.add(new int[]{3, 4}));
+        System.out.println(set.add(new int[]{1, 2}));
+        System.out.println(Integer.toString(100, 2));
+        System.out.println(Integer.toBinaryString(100));
     }
 
 }

@@ -6,6 +6,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.function.IntUnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class BoxPathFinder2 {
 
@@ -81,7 +85,6 @@ public class BoxPathFinder2 {
                     continue; // 移动前后方位置不可达
                 }
                 // 检查连通性,箱子不可通过
-
                 if (!isConnect(grid, curState[sx], curState[sy], sx1, sy1, sx2, sx2)) {
                     System.out.printf(",%s:(%s,%s)->(%s,%s)\n", "4-不可连通", curState[sx], curState[sy], sx1, sy1);
                     continue;
@@ -110,29 +113,43 @@ public class BoxPathFinder2 {
         if (sx0 == sx1 && sy0 == sy1) {
             return true;
         }
-        LinkedList<int[]> newPosSet = new LinkedList<>();
-        newPosSet.add(new int[]{sx1, sy1});
+        LinkedList<int[]> newPosQueue = new LinkedList<>();
+        newPosQueue.offer(new int[]{sx1, sy1});
 
-        Set<int[]> oldPosSet = new HashSet<>();
+        int[] passed = new int[grid.length];
         int[] pos;
-        while ((pos = newPosSet.poll()) != null) {
-            oldPosSet.add(pos);
-            if (sx0 == pos[0] && sy0 == pos[1]) {
+        while ((pos = newPosQueue.poll()) != null) {
+            sx1 = pos[0];
+            sy1 = pos[1];
+//            oldPosSet.add(pos);
+            passed[sx1] |= (1 << sy1);
+            if (sx0 == sx1 && sy0 == sy1) {
                 return true;
             }
+//            System.out.println(Arrays.toString(pos) + "->(" + sx0 + "," + sy0 + ")");
             for (int i = 0; i < 4; i++) {
-                int sx2 = pos[0] + dx[i];
-                int sy2 = pos[1] + dy[i];
-                if (oldPosSet.contains(new int[]{sx2, sy2})) {
-                    continue;
-                }
+                int sx2 = sx1 + dx[i];
+                int sy2 = sy1 + dy[i];
                 if (isWall(grid, sx2, sy2)) {
                     continue;
                 }
-                newPosSet.offer(new int[]{sx2, sy2});
+//                if (oldPosSet.contains(new int[]{sx2, sy2})) {
+                if ((passed[sx2] | (1 << sy2)) == 1) {
+                    continue;
+                }
+                newPosQueue.offer(new int[]{sx2, sy2});
+//                System.out.println("newPos:(" + sx2 + "," + sy2 + ")");
             }
+            System.out.println(passedToStr(passed, grid[0].length) + "\n");
+//            System.out.println(newPosSet.stream().map(Arrays::toString).collect(Collectors.joining(",")));
         }
         return false;
+    }
+
+    public static String passedToStr(int[] passed, int width) {
+        return IntStream.of(passed).mapToObj(Integer::toBinaryString)
+                .map(it -> String.format("%" + width + "s", it).replaceAll(" ", "0"))
+                .collect(Collectors.joining("\n"));
     }
 
     public static boolean isWall(char[][] grid, int x, int y) {
