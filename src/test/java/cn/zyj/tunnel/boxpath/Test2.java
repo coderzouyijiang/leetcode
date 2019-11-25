@@ -53,6 +53,9 @@ public class Test2 {
         boolean connect2 = BoxPathFinder2.isConnect(grid4, 4, 7, 1, 1, 3, 5);
         System.out.println(connect2);
         grid4[3][5] = ch;
+
+        System.out.println(BoxPathFinder2.computeStateHash(new int[]{1, 2, 3, 4}));
+        System.out.println(BoxPathFinder2.computeStateHash(new int[]{1, 2, 3, 5}));
     }
 
     @Test

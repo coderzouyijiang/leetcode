@@ -71,6 +71,9 @@ public class BoxPathFinder2 {
                 int sy2 = curState[by];
 
                 int[] nextState = {bx2, by2, sx2, sy2, -1, -1};
+                nextState[step] = curState[step] + 1;   // 路径+1
+                nextState[dist] = Math.abs(tx - bx2) + Math.abs(ty - by2); // 后续路径估计
+                
                 System.out.printf("nextState:%s", Arrays.toString(nextState));
                 if (oldStateSet.contains(computeStateHash(nextState))) {
                     System.out.printf(",%s\n", "1-已经处理过的状态");
@@ -91,8 +94,6 @@ public class BoxPathFinder2 {
                     System.out.printf(",%s:(%s,%s)->(%s,%s)\n", "4-不可连通", curState[sx], curState[sy], sx1, sy1);
                     continue;
                 }
-                nextState[step] = curState[step] + 1;   // 路径+1
-                nextState[dist] = Math.abs(tx - bx2) + Math.abs(ty - by2); // 后续路径估计
                 System.out.printf(",join stateQueue:%s\n", Arrays.toString(nextState));
                 stateQueue.offer(nextState);
             }
@@ -101,7 +102,8 @@ public class BoxPathFinder2 {
     }
 
     public static int computeStateHash(int[] curState) {
-        return curState[bx] & (curState[by] << 8) & (curState[sx] << 16) & (curState[sy] << 24);
+//        return Arrays.hashCode(Arrays.copyOfRange(curState, 0, 4));
+        return curState[bx] | (curState[by] << 8) | (curState[sx] << 16) | (curState[sy] << 24);
     }
 
     // BFS
