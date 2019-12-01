@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.Arrays;
+
 @Slf4j
 @RunWith(JUnit4.class)
 public class CountSquaresTest {
@@ -18,21 +20,20 @@ public class CountSquaresTest {
         int maxWidth = Math.min(m, n);
         int count = 0;
         for (int w = 1; w <= maxWidth; w++) {
-            boolean[] arr = new boolean[n]; // 每一小列是否全为1 [(i,j),(i+w-1,j)]
+            int[] arr = new int[n]; // 每一小列是否全为1 [(i,j),(i+w-1,j)]
+            Arrays.fill(arr, -1);
             int m2 = m - (w - 1);
             for (int i = 0; i < m2; i++) { // 行
                 int num = 0; // 累计连续有多少个小列全是1
                 for (int j = 0; j < n; j++) { // 列
                     int i2 = i + w - 1;
-                    System.out.printf("----(%s,%s)->(%s,%s),%s,%s\n", i, j, (i + w - 1), j, arr[i], matrix[i2][j]);
-                    if (matrix[i2][j] == 1) {
-                        if (!arr[j]) {
-                            arr[j] = checkRow(matrix, i, i2, j); // 重新检查整个小列
-                        }
-                    } else {
-                        arr[j] = false;
+                    System.out.printf("----(%s,%s)->(%s,%s),%s,%s\n", i, j, i2, j, arr[j], matrix[i2][j]);
+                    boolean isAllOne = false;
+                    if (i2 - arr[j] >= w) {
+                        arr[j] = getLastZeroIndex(matrix, arr[j] + 1, i2, j); // 重新检查整个小列
+                        isAllOne = i2 - arr[j] >= w;
                     }
-                    if (arr[j]) {
+                    if (isAllOne) {
                         num++;
                     } else {
                         num = 0; // 重新累计
@@ -48,13 +49,13 @@ public class CountSquaresTest {
         return count;
     }
 
-    private boolean checkRow(int[][] matrix, int start, int end, int j) {
-        for (int i = start; i < end; i++) {
+    private int getLastZeroIndex(int[][] matrix, int start, int end, int j) {
+        for (int i = end; i >= start; i--) {
             if (matrix[i][j] == 0) {
-                return false;
+                return i;
             }
         }
-        return true;
+        return start - 1;
     }
 
     private int[][] parseInput(String input) {
@@ -95,6 +96,12 @@ public class CountSquaresTest {
                 "[1,1,1,1]," +
                 "[1,0,1,0]]";
         Assert.assertEquals(13, countSquares(parseInput(input3)));
+        String input4 = "[" +
+                "[0,1,1,1]," +
+                "[1,1,0,1]," +
+                "[1,1,1,1]," +
+                "[1,0,1,0]]";
+        Assert.assertEquals(13, countSquares(parseInput(input4)));
 
     }
 
