@@ -31,19 +31,18 @@ public class PalindromePartitionTest2 {
         for (int i = 1; i < dp.length; i++) {
             Arrays.fill(dp[i], Integer.MAX_VALUE);
         }
-        dp[0][0] = 0;
 
         for (int i = 1; i <= len; i++) {
             int len2 = Math.min(i, k);
             dp[i][1] = costCache[1][i];
             for (int j = 2; j <= len2; j++) {
-                for (int i0 = j - 1; i0 < i; i0++) {
-                    System.out.printf("dp[%s][%s]=%s,dp[%s][%s]=%s,cost(%s,%s)=%s,str=%s,%s\n"
-                            , i, j, dp[i][j], i0, j - 1, dp[i0][j - 1], i0 + 1, i, costCache[i0 + 1][i], str.substring(0, i0), str.substring(i0, i));
+                for (int i0 = j - 1; i0 < i; i0++) { // i0>=1,j-1>=1
+//                    System.out.printf("dp[%s][%s]=%s,dp[%s][%s]=%s,cost(%s,%s)=%s,str=%s,%s\n"
+//                            , i, j, dp[i][j], i0, j - 1, dp[i0][j - 1], i0 + 1, i, costCache[i0 + 1][i], str.substring(0, i0), str.substring(i0, i));
 //                    dp[i][j] = Math.min(dp[i][j], dp[i0][j - 1] + cost(str, i0 + 1, i));
                     dp[i][j] = Math.min(dp[i][j], dp[i0][j - 1] + costCache[i0 + 1][i]);
                 }
-                System.out.printf("------(%02d,%02d)=%s\n", i, j, dp[i][j]);
+//                System.out.printf("------(%02d,%02d)=%s\n", i, j, dp[i][j]);
             }
         }
         return dp[str.length()][k];
