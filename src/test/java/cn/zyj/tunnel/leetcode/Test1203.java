@@ -51,30 +51,39 @@ public class Test1203 {
             // v=a*(10^w)
 //            int a = (num.charAt(i) - '0');
             Integer a = Integer.valueOf(num.substring(Math.max(i - width, 0), i));
-            System.out.printf("%s,%s\n", i, a);
+//            System.out.printf("%s,%s,%s\n", Math.max(i - width, 0), i, a);
             if (a == 0) continue;
             // a*w+b = b*v+c
 //            int k = (int) Math.ceil(num.length() / width);
             int[] bs2 = ten2Hex(a, k, w4, v16);
             bs = add(bs, bs2, v16);
-            System.out.printf("bs=%s\n", Arrays.toString(bs));
         }
+        System.out.printf("bs=%s\n", Arrays.toString(bs));
+//        System.out.println(str);
+        return hexToStr(bs);
+    }
+
+    private String hexToStr(int[] bs) {
+        final int mask = (1 << 4) - 1;
         String str = null;
         for (int i = bs.length - 1; i >= 0; i--) {
-            if (str == null) {
-                if (bs[i] == 0) continue;
-                str = "";
+            if (str == null && bs[i] == 0) {
+                continue;
             }
-            String hexStr = Integer.toHexString(bs[i]);
-            for (int j = 0; j < hexStr.length(); j++) {
-                char b = hexStr.charAt(j);
-                if (b == '0') str += "O";
-                else if (b == '1') str += "I";
-                else if (b >= 'a' && b <= 'f') str += (char) (b + ('A' - 'a'));
+//            String hexStr = Integer.toHexString(bs[i]);
+            for (int j = 0; j < 4; j++) {
+                int b = (bs[i] >> ((3 - j) * 4)) & mask;
+//                char b = j < hexStr.length() ? hexStr.charAt(j) : '0';
+                if (str == null) {
+                    if (b == 0) continue;
+                    str = "";
+                }
+                if (b == 0) str += 'O';
+                else if (b == 1) str += 'I';
+                else if (b >= 10 && b <= 15) str += (char) (b - 10 + 'A');
                 else return "ERROR";
             }
         }
-        System.out.println(str);
         return str;
     }
 
@@ -110,17 +119,88 @@ public class Test1203 {
                 bytes[k] = b;
             }
         }
-        System.out.printf("%s*%s^%s => (%s)%s\n", a, w, k, v, Arrays.toString(bytes));
+//        System.out.printf("%s*%s^%s => (%s)%s\n", a, w, k, v, Arrays.toString(bytes));
         return bytes;
     }
 
     @Test
     public void test() {
+        System.out.println(Integer.valueOf("C0B0A", 16));
 //        log.info(toHexspeak("257"));
 //        log.info(toHexspeak("619879596177"));
 //        log.info(toHexspeak("26221644803"));
 //        log.info(toHexspeak("747823223228"));
-        Assert.assertEquals("AEIDBCDIBC", toHexspeak("747823223228"));
+//        Assert.assertEquals("AEIDBCDIBC", toHexspeak("747823223228"));
+        Assert.assertEquals("COBOA", toHexspeak("789258"));
+
+    }
+
+    class Solution {
+
+        public final int width = 4;
+        public final int w = (int) Math.pow(10, width);
+        public final int v = 1 << (4 * width);
+
+        public int[] ten2HexArr(String num) {
+
+            int len = (int) Math.ceil((double) num.length() / width);
+            int offset = width * len - num.length();
+
+            int[] arr = new int[len];
+            for (int start = 0, end = width - offset; end <= num.length(); end += width, start = end - width) {
+                // 0,w;w,2w;2w
+                Integer x = Integer.valueOf(num.substring(start, end));
+                int b = x;
+                for (int i = 0; i < len - 1; i++) {
+                    b = arr[i] * w + b;
+                    arr[i] = b % v;
+                    b = b / v;
+                }
+                if (b > 0) {
+                    arr[len - 1] += b;
+                }
+            }
+            return arr;
+        }
+
+        private String hexArrToStr(int[] bs) {
+            final int mask = (1 << 4) - 1;
+            String str = null;
+            for (int i = bs.length - 1; i >= 0; i--) {
+                if (str == null && bs[i] == 0) {
+                    continue;
+                }
+//            String hexStr = Integer.toHexString(bs[i]);
+                for (int j = 0; j < 4; j++) {
+                    int b = (bs[i] >> ((3 - j) * 4)) & mask;
+//                char b = j < hexStr.length() ? hexStr.charAt(j) : '0';
+                    if (str == null) {
+                        if (b == 0) continue;
+                        str = "";
+                    }
+                    if (b == 0) str += 'O';
+                    else if (b == 1) str += 'I';
+                    else if (b >= 10 && b <= 15) str += (char) (b - 10 + 'A');
+                    else return "ERROR";
+                }
+            }
+            return str;
+        }
+
+        public String toHexspeak(String num) {
+            int[] hexArr = ten2HexArr(num);
+            return hexArrToStr(hexArr);
+        }
+    }
+
+    @Test
+    public void test2() {
+        Solution solution = new Solution();
+        log.info("" + Arrays.toString(solution.ten2HexArr("3")));
+        log.info("" + toHexspeak("789258"));
+        log.info("" + Arrays.toString(solution.ten2HexArr("789258")));
+        log.info("" + solution.toHexspeak("789258"));
+        Assert.assertEquals("AEIDBCDIBC", solution.toHexspeak("747823223228"));
     }
 
 }
