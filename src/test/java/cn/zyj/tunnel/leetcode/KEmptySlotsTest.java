@@ -1,5 +1,6 @@
 package cn.zyj.tunnel.leetcode;
 
+import cn.zyj.tunnel.utils.InputUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,11 +12,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static cn.zyj.tunnel.leetcode.FindElementsTest.TreeNode;
 
@@ -279,23 +284,30 @@ public class KEmptySlotsTest {
         log.info("" + restoreIpAddresses("010010"));
     }
 
+    /**
+     * 要注意输入类型，别想当然!!!
+     *
+     * @param matrix
+     * @return
+     */
     public int maximalSquare(char[][] matrix) {
         int m = matrix.length;
+        if (m == 0) return 0;
         int n = matrix[0].length;
+        if (n == 0) return 0;
         // dp[i][j]表示以(i,j)为右下角的正方形的最大边长
         // dp[i][j]=1+min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1])
         int[][] dp = new int[m][n];
         int max = 0;
         for (int i = 0; i < m; i++) {
-            Arrays.fill(dp[i], 0);
-            max = Math.max(max, dp[i][0] = matrix[i][0]);
+            max = Math.max(max, dp[i][0] = matrix[i][0] - '0');
         }
         for (int j = 0; j < n; j++) {
-            max = Math.max(max, dp[0][j] = matrix[0][j]);
+            max = Math.max(max, dp[0][j] = matrix[0][j] - '0');
         }
         for (int i = 1; i < m; i++) {
             for (int j = 1; j < n; j++) {
-                if (matrix[i][j] != 1) continue;
+                if (matrix[i][j] != '1') continue;
                 max = Math.max(max, dp[i][j] = 1 + Math.min(Math.min(dp[i - 1][j - 1], dp[i - 1][j]), dp[i][j - 1]));
             }
         }
@@ -309,12 +321,23 @@ public class KEmptySlotsTest {
 //        1 1 1 1 1
 //        1 0 0 1 0
         char[][] mat = {
-                {1, 0, 1, 0, 0},
-                {1, 0, 1, 1, 1},
-                {1, 1, 1, 1, 1},
-                {1, 0, 0, 1, 0},
+                {'1', '0', '1', '0', '0' },
+                {'1', '0', '1', '1', '1' },
+                {'1', '1', '1', '1', '1' },
+                {'1', '0', '0', '1', '0' },
         };
         log.info("" + maximalSquare(mat));
+
+        char[][] mat2 = {
+                {'1', '0', '1', '0', '0' },
+                {'1', '1', '1', '1', '0' },
+                {'1', '0', '1', '0', '1' },
+                {'1', '1', '1', '1', '1' },
+                {'1', '0', '1', '1', '1' },
+                {'1', '1', '1', '1', '1' },
+                {'1', '0', '0', '1', '0' },
+        };
+        log.info("" + maximalSquare(mat2));
     }
 
     //    输入: [-2,1,-3,4,-1,2,1,-5,4],
@@ -351,7 +374,7 @@ public class KEmptySlotsTest {
     自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
     如果你可以只使用 O(n) 的额外空间（n 为三角形的总行数）来解决这个问题，那么你的算法会很加分。
     */
-    public int minimumTotal(List<List<Integer>> triangle) {
+    public int minimumTotal0(List<List<Integer>> triangle) {
         Queue<int[]> queue = new LinkedList<>(); // n=triangle.size(), 最多使用n的空间
         queue.offer(new int[]{0, 0, 0}); // 层,横向位置，累计路径
         int minVal = Integer.MAX_VALUE;
@@ -367,6 +390,43 @@ public class KEmptySlotsTest {
             queue.offer(new int[]{state[0] + 1, state[1] + 1, state[2]});
         }
         return minVal;
+    }
+
+    public int minimumTotal1(List<List<Integer>> triangle) {
+        int n = triangle.size();
+        int[] dp = new int[n];
+        Arrays.fill(dp, Integer.MAX_VALUE);
+        dp[0] = triangle.get(0).get(0);
+        for (int i = 1; i < n; i++) {
+            int left = Integer.MAX_VALUE;
+            for (int j = 0; j <= i; j++) {
+                int dpj_1 = left;
+                left = dp[j];
+                dp[j] = Math.min(dpj_1, dp[j]) + triangle.get(i).get(j);
+            }
+        }
+        int minVal = Integer.MAX_VALUE;
+        for (int val : dp) minVal = Math.min(minVal, val);
+        return minVal;
+    }
+
+    public int minimumTotal(List<List<Integer>> triangle) {
+        int n = triangle.size();
+        if (n == 0) return 0;
+        /*
+        逆向思考：路径是双向的，可以从底向上作dp，这样就减少了特殊情况
+        视三角形为n+1层，第n+1层的代价全是0，这样就不影响结果
+         */
+        int[] dp = new int[n + 1];
+        ListIterator<List<Integer>> listIt = triangle.listIterator(n);
+        while (listIt.hasPrevious()) {
+            ListIterator<Integer> it = listIt.previous().listIterator(0);
+            while (it.hasNext()) {
+                int j = it.nextIndex();
+                dp[j] = Math.min(dp[j], dp[j + 1]) + it.next();
+            }
+        }
+        return dp[0];
     }
 
     @Test
@@ -385,4 +445,32 @@ public class KEmptySlotsTest {
         Assert.assertEquals(-4, minimumTotal(input2));
 
     }
+
+    /*
+    给定一些标记了宽度和高度的信封，宽度和高度以整数对形式 (w, h) 出现。当另一个信封的宽度和高度都比这个信封大的时候，
+    这个信封就可以放进另一个信封里，如同俄罗斯套娃一样。
+    请计算最多能有多少个信封能组成一组“俄罗斯套娃”信封（即可以把一个信封放到另一个信封里面）。
+    说明: 不允许旋转信封。
+     */
+    public int maxEnvelopes(int[][] envelopes) {
+        if (envelopes.length == 0) return 0;
+        int[] wh = envelopes[0];
+        for (int i = 0; i < envelopes.length; i++) {
+
+        }
+        return -1;
+    }
+
+    @Test
+    public void test10() {
+//        输入: envelopes = [[5,4],[6,4],[6,7],[2,3]]
+//        输出: 3
+//        解释: 最多信封的个数为 3, 组合为: [2,3] => [5,4] => [6,7]。
+//        Assert.assertEquals(3, maxEnvelopes(new int[][]{{5, 4}, {6, 4}, {6, 7}, {2, 3}}));
+
+        int[][] input2 = InputUtil.parseIntGrid("[[2,100],[3,200],[4,300],[5,500],[5,400],[5,250],[6,370],[6,360],[7,380]]");
+        Assert.assertEquals(5, maxEnvelopes(input2));
+
+    }
+
 }
