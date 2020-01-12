@@ -24,7 +24,7 @@ public class WeekRate170_4 {
     输出：2
     解释：字符串可变为 "mbdadbm" 或者 "mdbabdm" 。
      */
-    public int minInsertions(String s) {
+    public int minInsertions0(String s) {
         boolean[][] passed = new boolean[s.length()][s.length()];
         Queue<int[]> queue = new LinkedList<>();
         // leftIndex,rightIndex,0  ; leftIndex和rightIndex以外的字符串是回文串
@@ -47,21 +47,11 @@ public class WeekRate170_4 {
         return -1;
     }
 
-    public int minInsertions2(String s) {
-        if (isHw(s)) return 0;
-        // i:回文字符串的中心
-        for (int i = 0; i < s.length(); i++) {
+    public int minInsertions(String s) {
+        int[][] dp = new int[s.length()][s.length()];
 
-        }
+
         return -1;
-    }
-
-    private boolean isHw(String s) {
-        int mid = s.length() / 2;
-        for (int i = 0, j = s.length() - 1; i < mid; i++, j--) {
-            if (s.charAt(i) != s.charAt(j)) return false;
-        }
-        return true;
     }
 
     @Test

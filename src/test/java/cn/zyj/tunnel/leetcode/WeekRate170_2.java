@@ -25,7 +25,7 @@ public class WeekRate170_2 {
 [0,3] = 1 xor 3 xor 4 xor 8 = 14
 [3,3] = 8
      */
-    public int[] xorQueries(int[] arr, int[][] queries) {
+    public int[] xorQueries0(int[] arr, int[][] queries) {
         int[] result = new int[queries.length];
         for (int i = 0; i < queries.length; i++) {
             int[] query = queries[i];
@@ -38,6 +38,28 @@ public class WeekRate170_2 {
             }
             log.info("");
             result[i] = v;
+        }
+        return result;
+    }
+
+    public int[] xorQueries(int[] arr, int[][] queries) {
+        // dp[i]：前i个数字的异或
+        // 利用异或运算的性质: a^b=c => b=c^a
+        int[] dp = new int[arr.length];
+        dp[0] = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            dp[i] = dp[i - 1] ^ arr[i];
+        }
+        int[] result = new int[queries.length];
+        for (int i = 0; i < queries.length; i++) {
+            int[] query = queries[i];
+            int l = query[0];
+            int r = query[1];
+            if (l == 0) {
+                result[i] = dp[r];
+            } else {
+                result[i] = dp[r] ^ dp[l - 1];
+            }
         }
         return result;
     }
