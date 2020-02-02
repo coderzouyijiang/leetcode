@@ -31,29 +31,32 @@ public class WeekRate171_4_2 {
 
     public int minimumDistance(String word) {
         if (word.length() <= 2) return 0;
-        // 分成2个集合按顺序运动
-        // HAPPY
-        final int left = 0, right = 1, dist = 2;
-        int[] start = {-1, -1, 0};
-        PriorityQueue<int[]> queue = new PriorityQueue<>(Comparator.comparingInt(it -> it[dist]));
-        queue.offer(start);
-        int[] state;
-        while ((state = queue.poll()) != null) {
-            int l = state[left];
-            int r = state[right];
-            int d = state[dist];
-//            System.out.printf("%s,%s,%s\n", Arrays.toString(state), (char) (l + 'A'), (char) (r + 'A'));
-            int next = Math.max(l, r) + 1;
-            if (next == word.length()) {
-                return d;
-            }
-            int nextCh = word.charAt(next) - 'A';
-            int dl = l < 0 ? 0 : distArr[word.charAt(l) - 'A'][nextCh];
-            queue.offer(new int[]{next, r, d + dl});
-            int dr = r < 0 ? 0 : distArr[word.charAt(r) - 'A'][nextCh];
-            queue.offer(new int[]{l, next, d + dr});
-        }
+        // 把word分成2个集合l和r
+        // 使 sum_i(distArr[l[i]][l[i+1]])+sum_j(distArr[r[j]][r[j+1]]) 最小
+        // 同一字母分配给同一集合 !!!!!!!!!!!! 复杂度2^26
+
+
         return -1;
+    }
+
+    /**
+     * @param word
+     * @param chGroup 字母所在分组索引
+     * @return
+     */
+    private int computeDist(String word, int[] chGroup) {
+        int count = 0;
+        int[] chArr = {-1, -1};
+        for (int i = 0; i < word.length(); i++) {
+            int ch = word.charAt(i) - 'A';
+            int group = chGroup[ch];
+            int curCh = chArr[group];
+            if (curCh >= 0) {
+                count += distArr[curCh][ch];
+            }
+            chArr[group] = ch;
+        }
+        return count;
     }
 
     @Test
@@ -61,4 +64,14 @@ public class WeekRate171_4_2 {
         System.out.println("" + minimumDistance("HAPPY")); // 6
     }
 
+    @Test
+    public void test2() {
+        int[] chGroup = new int[26];
+        chGroup['H' - 'A'] = 0;
+        chGroup['A' - 'A'] = 0;
+        chGroup['P' - 'A'] = 1;
+        chGroup['P' - 'A'] = 1;
+        chGroup['Y' - 'A'] = 0;
+        System.out.println("" + computeDist("HAPPY", chGroup)); // 6
+    }
 }
